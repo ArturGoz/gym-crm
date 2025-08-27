@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<dataset>
+    <users id="1" first_name="Arnold" last_name="Schwarzenegger" username="arnold.schwarzenegger" password="test123" is_active="true"/>
+    <users id="2" first_name="Trainer" last_name="One" username="trainer.one" password="trainerpass" is_active="true"/>
+
+    <training_types id="1" training_type_name="Fitness"/>
+
+    <trainees id="1" user_id="1" address="123 Main St" date_of_birth="1990-01-01"/>
+    <trainers id="1" user_id="2" specialization_id="1"/>
+</dataset>

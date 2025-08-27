@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<dataset>
+    <users id="2" first_name="Ghost" last_name="User" username="ghost.user" password="password" is_active="true"/>
+    <training_types id="1" training_type_name="Fitness"/>
+</dataset>
