@@ -1,0 +1,29 @@
+# Maven target
+target/
+*/target/
+
+# IDE (IntelliJ IDEA, Eclipse, VSCode тощо)
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Backup / temp
+*.swp
+*.bak
+*.tmp
+
+# Maven Wrapper (опційно, якщо не хочеш трекати скрипти)
+!mvnw
+!mvnw.cmd
+!.mvn/wrapper/maven-wrapper.jar

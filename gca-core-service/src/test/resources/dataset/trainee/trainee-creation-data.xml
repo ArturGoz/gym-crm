@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<dataset>
+    <users first_name="Arnold" last_name="Schwarzenegger" username="arnold.schwarzenegger" password="test123" is_active="true"/>
+    <users first_name="Ghost" last_name="User" username="ghost.user" password="password" is_active="true"/>
+    <users first_name="Trainer" last_name="One" username="trainer.one" password="trainerpass" is_active="true"/>
+
+</dataset>

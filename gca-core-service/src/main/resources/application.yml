@@ -1,0 +1,41 @@
+spring:
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    changelog: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+gca:
+  metrics:
+    max-memory-threshold: 2000
+
+jwt:
+  secret: gym-crm-application-SECRETKEY123!@#
+  access:
+    duration: 3600000
+  refresh:
+    duration: 604800000
+
+login:
+  attempt:
+    max: 3
+    block-time-ms: 60000

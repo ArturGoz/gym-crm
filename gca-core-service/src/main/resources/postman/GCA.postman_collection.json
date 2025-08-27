@@ -1,0 +1,656 @@
+{
+  "info": {
+    "_postman_id": "574f2cbf-4ca8-41ce-8d4f-1675bb906677",
+    "name": "GCA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "38565541"
+  },
+  "item": [
+    {
+      "name": "Auth API",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"ronnie.coleman\",\n  \"password\": \"123qweQWE!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/auth/login",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"ronnie.coleman\",\n  \"oldPassword\": \"J9elJuMCPE\",\n  \"newPassword\": \"123qweQWE!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/auth/login",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/auth/logout"
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseURL}}/auth/refresh"
+          },
+          "response": []
+        }
+      ],
+      "variable": [
+        {
+          "key": "baseURL",
+          "value": "http://localhost:8080/api/v1"
+        }
+      ]
+    },
+    {
+      "name": "Trainee API",
+      "item": [
+        {
+          "name": "Register Trainee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"dateOfBirth\": \"2000-01-15\",\n  \"address\": \"123 Main Street\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/trainees/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "trainees",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Trainee by Username",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/trainees/john.doe3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "trainees",
+                "john.doe3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Trainee",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Johnny\",\n  \"lastName\": \"Doe\",\n  \"dateOfBirth\": \"2000-01-15\",\n  \"address\": \"456 New Address\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/trainees/john.doe3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "trainees",
+                "john.doe3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Trainee",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/trainees/john.doe2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "trainees",
+                "john.doe2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Assigned Trainers",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trainerUsernames\": [\"johndoe\"]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/trainees/john.doe3/trainers",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "trainees",
+                "john.doe3",
+                "trainers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Available Trainers",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/trainees/janesmith/available-trainers",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "trainees",
+                "janesmith",
+                "available-trainers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Trainee Trainings with Filters",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/trainees/janesmith/trainings?periodFrom=2025-01-01&periodTo=2025-12-31&trainerName=johndoe&trainingType=Yoga",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "trainees",
+                "janesmith",
+                "trainings"
+              ],
+              "query": [
+                {
+                  "key": "periodFrom",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "periodTo",
+                  "value": "2025-12-31"
+                },
+                {
+                  "key": "trainerName",
+                  "value": "johndoe"
+                },
+                {
+                  "key": "trainingType",
+                  "value": "Yoga"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Trainee Activation Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/trainees/john.doe3/change-activation-status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "trainees",
+                "john.doe3",
+                "change-activation-status"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Trainer API",
+      "item": [
+        {
+          "name": "Register Trainer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"specialization\": \"Boxing\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/trainers/register",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trainers",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Trainer by Username",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/trainers/johndoe",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trainers",
+                "johndoe"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Trainer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Smith\",\n  \"specialization\": \"Yoga\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/trainers/john.doe1",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trainers",
+                "john.doe1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Trainer Trainings",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/trainers/johndoe/trainings?periodFrom=2025-01-01&periodTo=2025-12-31&traineeName=janesmith",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trainers",
+                "johndoe",
+                "trainings"
+              ],
+              "query": [
+                {
+                  "key": "periodFrom",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "periodTo",
+                  "value": "2025-12-31"
+                },
+                {
+                  "key": "traineeName",
+                  "value": "janesmith"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Activation Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/trainers/john.doe/change-activation-status",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trainers",
+                "john.doe",
+                "change-activation-status"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "variable": [
+        {
+          "key": "baseURL",
+          "value": "http://localhost:8080/api/v1"
+        }
+      ]
+    },
+    {
+      "name": "Training API",
+      "item": [
+        {
+          "name": "Create Training",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"traineeUsername\": \"janesmith\",\n  \"trainerUsername\": \"johndoe\",\n  \"trainingName\": \"Boxing\",\n  \"trainingDate\": \"2025-08-15\",\n  \"duration\": 60\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/trainings",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trainings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Training Types",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/trainings/types",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "trainings",
+                "types"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "variable": [
+        {
+          "key": "baseURL",
+          "value": "http://localhost:8080/api/v1"
+        }
+      ]
+    },
+    {
+      "name": "Actuator API",
+      "item": [
+        {
+          "name": "Auth Login Failed Count",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"ronnie.coleman\",\n  \"password\": \"123qweQWE!\"\n}"
+            },
+            "url": "http://localhost:8080/actuator/metrics/auth.login.failed.count"
+          },
+          "response": []
+        },
+        {
+          "name": "Auth Login Success Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "http://localhost:8080/actuator/metrics/auth.login.success.count"
+          },
+          "response": []
+        },
+        {
+          "name": "User Registration Success Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "http://localhost:8080/actuator/metrics/user.registration.success"
+          },
+          "response": []
+        },
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "http://localhost:8080/actuator/health"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
