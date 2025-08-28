@@ -17,7 +17,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(SecurityConfig.class)
 class SecurityConfigTest {
-
     @MockitoBean
     private JwtTokenFilter jwtTokenFilter;
 
