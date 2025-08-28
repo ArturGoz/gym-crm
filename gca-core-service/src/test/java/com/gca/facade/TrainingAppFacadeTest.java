@@ -75,7 +75,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class TrainingAppFacadeTest {
 
-    private static final long ACCESS_TOKEN_DURATION = 3600_00L;
+    private static final long ACCESS_TOKEN_DURATION = 360L;
     private static final String ACCESS_TOKEN_COOKIE_NAME = "JWT";
     private static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";
 
