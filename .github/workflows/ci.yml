@@ -1,4 +1,4 @@
-name: CI - Build, Test and SonarCloud
+name: CI - Build, Test and SonarCloud for gca core service
 
 on:
   push:
