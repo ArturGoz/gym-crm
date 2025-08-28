@@ -1,15 +1,23 @@
-name: CI - Build, Test and SonarCloud
+name: CI - Build, Test and SonarCloud for gca core service
 
 on:
   push:
     branches: [ develop ]
+    paths:
+      - 'gca-core-service/**'
   pull_request:
     branches: [ develop ]
+    paths:
+      - 'gca-core-service/**'
 
 jobs:
   build:
-    name: Build and run tests + SonarCloud
+    name: Build and run tests with SonarCloud review for gca-core-service
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: gca-core-service
 
     steps:
       - name: Checkout source code
@@ -30,6 +38,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build, test and analyze with SonarCloud
+        working-directory: ./gca-core-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
