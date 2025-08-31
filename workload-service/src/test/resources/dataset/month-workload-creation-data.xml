@@ -1,8 +1,0 @@
-<dataset>
-    <trainer_workloads id="1" username="john.cena" first_name="John" last_name="Cena" is_active="true"/>
-    <trainer_workloads id="2" username="ronnie.coleman" first_name="Ronnie" last_name="Coleman" is_active="true"/>
-
-    <year_workloads id="1" year_num="2025" trainer_workload_id="1"/>
-    <year_workloads id="2" year_num="2024" trainer_workload_id="1"/>
-    <year_workloads id="3" year_num="2025" trainer_workload_id="2"/>
-</dataset>
