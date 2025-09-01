@@ -63,12 +63,33 @@ class TrainerWorkloadServiceImplTest {
         MonthWorkload actualMonth = actualYear.getMonths().get(0);
         assertThat(actualMonth.getMonth()).isEqualTo(1);
         assertThat(actualMonth.getTrainingSummaryDuration()).isEqualTo(120L);
-        verify(repository, times(1)).save(expectedTrainer);
+        verify(repository).save(expectedTrainer);
     }
 
     @Test
     void addTrainingWorkload_ExistingTrainerAndYear_AddsToMonth() {
         TrainerWorkloadDTO request = buildRonnieColemanWorkload();
+        TrainerWorkload existingTrainer = buildExistingTrainerWithYearAndMonth(request);
+
+        when(repository.findTrainerWorkloadsByUsername(request.getTrainerUsername()))
+                .thenReturn(Optional.of(existingTrainer));
+        when(repository.save(any(TrainerWorkload.class))).thenReturn(existingTrainer);
+
+        TrainerWorkload actualTrainer = service.addTrainingWorkload(request);
+
+        MonthWorkload actualMonth = actualTrainer.getYears().get(0).getMonths().get(0);
+        assertThat(actualMonth.getTrainingSummaryDuration()).isEqualTo(300L);
+        verify(repository).save(existingTrainer);
+    }
+
+    @Test
+    void deleteTrainingWorkload_CallsRepositoryDelete() {
+        String username = "arnold.schwarzenegger";
+        service.deleteTrainingWorkload(username);
+        verify(repository, times(1)).deleteTrainerWorkloadsByUsername(username);
+    }
+
+    private TrainerWorkload buildExistingTrainerWithYearAndMonth(TrainerWorkloadDTO request) {
         MonthWorkload existingMonth = MonthWorkload.builder()
                 .month(3)
                 .trainingSummaryDuration(100L)
@@ -86,22 +107,7 @@ class TrainerWorkloadServiceImplTest {
                 .build();
         existingYear.setTrainerWorkload(existingTrainer);
 
-        when(repository.findTrainerWorkloadsByUsername(request.getTrainerUsername()))
-                .thenReturn(Optional.of(existingTrainer));
-        when(repository.save(any(TrainerWorkload.class))).thenReturn(existingTrainer);
-
-        TrainerWorkload actualTrainer = service.addTrainingWorkload(request);
-
-        MonthWorkload actualMonth = actualTrainer.getYears().get(0).getMonths().get(0);
-        assertThat(actualMonth.getTrainingSummaryDuration()).isEqualTo(300L);
-        verify(repository, times(1)).save(existingTrainer);
-    }
-
-    @Test
-    void deleteTrainingWorkload_CallsRepositoryDelete() {
-        String username = "arnold.schwarzenegger";
-        service.deleteTrainingWorkload(username);
-        verify(repository, times(1)).deleteTrainerWorkloadsByUsername(username);
+        return existingTrainer;
     }
 
     private TrainerWorkloadDTO buildRonnieColemanWorkload() {
