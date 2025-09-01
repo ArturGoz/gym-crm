@@ -1,6 +1,6 @@
 package com.gca.workloadservice.mapper;
 
-import com.gca.workloadservice.dto.TrainerWorkloadDTO;
+import com.gca.openapi.model.TrainerWorkloadRequest;
 import com.gca.workloadservice.model.TrainerWorkload;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -13,5 +13,5 @@ public interface TrainerWorkloadMapper {
     @Mapping(source = "trainerFirstName", target = "firstName")
     @Mapping(source = "trainerLastName", target = "lastName")
     @Mapping(source = "isActive", target = "isActive")
-    TrainerWorkload toEntity(TrainerWorkloadDTO dto);
+    TrainerWorkload toEntity(TrainerWorkloadRequest dto);
 }
