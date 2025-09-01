@@ -10,9 +10,34 @@ import java.util.Optional;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataSet(value = "dataset/trainers-workload-data.xml", cleanBefore = true, cleanAfter = true, transactional = true)
 class TrainerWorkloadRepositoryTest extends BaseIntegrationTest<TrainerWorkloadRepository> {
+
+    @Test
+    void shouldFindTrainerByUsername() {
+        Optional<TrainerWorkload> actual = repository.findTrainerWorkloadsByUsername("john.cena");
+
+        assertThat(actual).isPresent();
+        assertThat(actual.get().getFirstName()).isEqualTo("John");
+        assertThat(actual.get().getLastName()).isEqualTo("Cena");
+    }
+
+    @Test
+    void shouldReturnEmptyIfTrainerUsernameNotExists() {
+        Optional<TrainerWorkload> actual = repository.findTrainerWorkloadsByUsername("non.existent");
+
+        assertThat(actual).isEmpty();
+    }
+
+    @Test
+    void shouldDeleteTrainerByUsername() {
+        repository.deleteTrainerWorkloadsByUsername("ronnie.coleman");
+
+        Optional<TrainerWorkload> result = repository.findTrainerWorkloadsByUsername("ronnie.coleman");
+        assertTrue(result.isEmpty());
+    }
 
     @Test
     void shouldLoadAllTrainerWorkloads() {
