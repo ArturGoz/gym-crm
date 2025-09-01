@@ -1,6 +1,6 @@
 package com.gca.workloadservice.service.impl;
 
-import com.gca.workloadservice.dto.TrainerWorkloadDTO;
+import com.gca.openapi.model.TrainerWorkloadRequest;
 import com.gca.workloadservice.mapper.TrainerWorkloadMapper;
 import com.gca.workloadservice.model.MonthWorkload;
 import com.gca.workloadservice.model.TrainerWorkload;
@@ -25,14 +25,15 @@ public class TrainerWorkloadServiceImpl implements TrainerWorkloadService {
     private final TrainerWorkloadMapper mapper;
 
     @Override
-    public TrainerWorkload addTrainingWorkload(@Valid TrainerWorkloadDTO dto) {
-        log.info("Add training workload for username: {}", dto.getTrainerUsername());
+    public TrainerWorkload addTrainingWorkload(@Valid TrainerWorkloadRequest request) {
+        log.info("Add training workload for username: {}", request.getTrainerUsername());
 
-        TrainerWorkload trainer = findOrCreateTrainer(dto);
-        YearWorkload yearWorkload = findOrCreateYear(trainer, dto.getTrainingDate().getYear());
-        MonthWorkload monthWorkload = findOrCreateMonth(yearWorkload, dto.getTrainingDate().getMonthValue());
+        TrainerWorkload trainer = findOrCreateTrainer(request);
+        YearWorkload yearWorkload = findOrCreateYear(trainer, request.getTrainingDate().getYear());
+        MonthWorkload monthWorkload = findOrCreateMonth(yearWorkload,
+                request.getTrainingDate().getMonthValue());
 
-        updateMonthDuration(monthWorkload, dto.getTrainingDuration());
+        updateMonthDuration(monthWorkload, request.getTrainingDuration());
 
         return repository.save(trainer);
     }
@@ -43,9 +44,9 @@ public class TrainerWorkloadServiceImpl implements TrainerWorkloadService {
         repository.deleteTrainerWorkloadsByUsername(username);
     }
 
-    private TrainerWorkload findOrCreateTrainer(TrainerWorkloadDTO dto) {
-        return repository.findTrainerWorkloadsByUsername(dto.getTrainerUsername())
-                .orElseGet(() -> mapper.toEntity(dto));
+    private TrainerWorkload findOrCreateTrainer(TrainerWorkloadRequest request) {
+        return repository.findTrainerWorkloadsByUsername(request.getTrainerUsername())
+                .orElseGet(() -> mapper.toEntity(request));
     }
 
     private YearWorkload findOrCreateYear(TrainerWorkload trainer, int year) {

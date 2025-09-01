@@ -1,6 +1,6 @@
 package com.gca.workloadservice.service.impl;
 
-import com.gca.workloadservice.dto.TrainerWorkloadDTO;
+import com.gca.openapi.model.TrainerWorkloadRequest;
 import com.gca.workloadservice.mapper.TrainerWorkloadMapper;
 import com.gca.workloadservice.model.MonthWorkload;
 import com.gca.workloadservice.model.TrainerWorkload;
@@ -36,7 +36,7 @@ class TrainerWorkloadServiceImplTest {
 
     @Test
     void addTrainingWorkload_NewTrainer_CreatesTrainerYearMonth() {
-        TrainerWorkloadDTO request = buildArnoldSchwarzeneggerWorkload();
+        TrainerWorkloadRequest request = buildArnoldSchwarzeneggerWorkload();
 
         TrainerWorkload expectedTrainer = TrainerWorkload.builder()
                 .username(request.getTrainerUsername())
@@ -67,7 +67,7 @@ class TrainerWorkloadServiceImplTest {
 
     @Test
     void addTrainingWorkload_ExistingTrainerAndYear_AddsToMonth() {
-        TrainerWorkloadDTO request = buildRonnieColemanWorkload();
+        TrainerWorkloadRequest request = buildRonnieColemanWorkload();
         TrainerWorkload existingTrainer = buildExistingTrainerWithYearAndMonth(request);
 
         when(repository.findTrainerWorkloadsByUsername(request.getTrainerUsername()))
@@ -88,7 +88,7 @@ class TrainerWorkloadServiceImplTest {
         verify(repository).deleteTrainerWorkloadsByUsername(username);
     }
 
-    private TrainerWorkload buildExistingTrainerWithYearAndMonth(TrainerWorkloadDTO request) {
+    private TrainerWorkload buildExistingTrainerWithYearAndMonth(TrainerWorkloadRequest request) {
         MonthWorkload existingMonth = MonthWorkload.builder()
                 .month(3)
                 .trainingSummaryDuration(100L)
@@ -109,25 +109,27 @@ class TrainerWorkloadServiceImplTest {
         return existingTrainer;
     }
 
-    private TrainerWorkloadDTO buildRonnieColemanWorkload() {
-        return TrainerWorkloadDTO.builder()
-                .trainerUsername("ronnie.coleman")
-                .trainerFirstName("Ronnie")
-                .trainerLastName("Coleman")
-                .isActive(true)
-                .trainingDate(LocalDate.of(2025, 3, 15))
-                .trainingDuration(200L)
-                .build();
+    private TrainerWorkloadRequest buildRonnieColemanWorkload() {
+        TrainerWorkloadRequest request = new TrainerWorkloadRequest();
+        request.setTrainerUsername("ronnie.coleman");
+        request.setTrainerFirstName("Ronnie");
+        request.setTrainerLastName("Coleman");
+        request.setIsActive(true);
+        request.setTrainingDate(LocalDate.of(2025, 3, 15));
+        request.setTrainingDuration(200);
+
+        return request;
     }
 
-    private TrainerWorkloadDTO buildArnoldSchwarzeneggerWorkload() {
-        return TrainerWorkloadDTO.builder()
-                .trainerUsername("arnold.schwarzenegger")
-                .trainerFirstName("Arnold")
-                .trainerLastName("Schwarzenegger")
-                .isActive(true)
-                .trainingDate(LocalDate.of(2025, 1, 10))
-                .trainingDuration(120L)
-                .build();
+    private TrainerWorkloadRequest buildArnoldSchwarzeneggerWorkload() {
+        TrainerWorkloadRequest request = new TrainerWorkloadRequest();
+        request.setTrainerUsername("arnold.schwarzenegger");
+        request.setTrainerFirstName("Arnold");
+        request.setTrainerLastName("Schwarzenegger");
+        request.setIsActive(true);
+        request.setTrainingDate(LocalDate.of(2025, 1, 10));
+        request.setTrainingDuration(120);
+
+        return request;
     }
 }
