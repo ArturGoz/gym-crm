@@ -15,10 +15,12 @@ import com.gca.dto.trainer.TrainerCreateDTO;
 import com.gca.dto.trainer.TrainerGetDTO;
 import com.gca.dto.trainer.TrainerUpdateRequestDTO;
 import com.gca.dto.trainer.TrainerUpdateResponseDTO;
+import com.gca.dto.trainer.TrainerWorkloadDTO;
 import com.gca.dto.training.TrainingCreateDTO;
 import com.gca.dto.training.TrainingDTO;
 import com.gca.dto.user.UserCredentialsDTO;
 import com.gca.exception.TokenRefreshException;
+import com.gca.integration.service.TrainerWorkloadService;
 import com.gca.mapper.rest.RestTraineeMapper;
 import com.gca.mapper.rest.RestTrainerMapper;
 import com.gca.mapper.rest.RestTrainingMapper;
@@ -118,6 +120,9 @@ class TrainingAppFacadeTest {
     @Mock
     private SecurityContext securityContext;
 
+    @Mock
+    private TrainerWorkloadService trainerWorkloadService;
+
     @InjectMocks
     private TrainingAppFacade facade;
 
@@ -203,13 +208,17 @@ class TrainingAppFacadeTest {
     void createTraining_delegatesToService() {
         TrainingCreateRequest restRequest = GymTestProvider.createTrainingCreateRequest();
         TrainingCreateDTO dto = GymTestProvider.createTrainingCreateRequestDTO();
+        TrainerGetDTO trainer = GymTestProvider.createTrainerGetDTO();
 
         when(restTrainingMapper.toDto(restRequest)).thenReturn(dto);
+        when(trainerService.getTrainerByUsername(restRequest.getTrainerUsername()))
+                .thenReturn(trainer);
 
         facade.createTraining(restRequest);
 
         verify(restTrainingMapper).toDto(restRequest);
         verify(trainingService).createTraining(dto);
+        verify(trainerWorkloadService).addOrDeleteTrainerWorkload(any(TrainerWorkloadDTO.class));
     }
 
     @Test
@@ -295,10 +304,14 @@ class TrainingAppFacadeTest {
     @Test
     void deleteTraineeByUsername_delegatesToService() {
         String username = "ronnie.coleman";
+        TraineeGetDTO trainee = GymTestProvider.createTraineeGetDTO();
+
+        when(traineeService.getTraineeByUsername(username)).thenReturn(trainee);
 
         facade.deleteTraineeByUsername(username);
 
         verify(traineeService).deleteTraineeByUsername(username);
+        verify(trainerWorkloadService).addOrDeleteTrainerWorkload(any(TrainerWorkloadDTO.class));
     }
 
     @Test

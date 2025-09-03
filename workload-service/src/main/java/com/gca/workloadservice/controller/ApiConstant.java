@@ -1,4 +1,4 @@
-package com.gca.controller;
+package com.gca.workloadservice.controller;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -6,5 +6,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ApiConstant {
     public static final String BASE_PATH = "/api/v1";
-    public static final String TRAINER_WORKLOAD_URL = "http://localhost:8081/api/v1/trainers/workload";
 }

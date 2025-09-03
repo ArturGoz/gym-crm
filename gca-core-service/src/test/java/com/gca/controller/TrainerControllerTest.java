@@ -1,6 +1,5 @@
 package com.gca.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gca.dto.filter.TrainingTrainerCriteriaFilter;
 import com.gca.facade.TrainingAppFacade;
 import com.gca.openapi.model.ActivationStatusRequest;
@@ -11,14 +10,12 @@ import com.gca.openapi.model.TrainerUpdateRequest;
 import com.gca.openapi.model.TrainerUpdateResponse;
 import com.gca.openapi.model.TrainingGetResponse;
 import com.gca.utils.GymTestProvider;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 
@@ -38,28 +35,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@AutoConfigureMockMvc(addFilters = false)
 class TrainerControllerTest {
 
     private final String trainerApi = format("%s/trainers", BASE_PATH);
     private final String trainerRegisterApi = format("%s/register", trainerApi);
     private final String username = "ricardo.milos";
 
-    @Mock
+    @MockitoBean
     private TrainingAppFacade facade;
 
     @Autowired
-    private ObjectMapper objectMapper;
-
     private MockMvc mockMvc;
-
-    @BeforeEach
-    void setUp() {
-        TrainerController controller = new TrainerController(facade);
-
-        mockMvc = MockMvcBuilders.standaloneSetup(controller)
-                .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
-                .build();
-    }
 
     @Test
     void registerTrainer_returnsOkResponse() throws Exception {

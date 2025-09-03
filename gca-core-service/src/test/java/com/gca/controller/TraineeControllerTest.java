@@ -1,6 +1,5 @@
 package com.gca.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gca.dto.filter.TrainingTraineeCriteriaFilter;
 import com.gca.facade.TrainingAppFacade;
 import com.gca.openapi.model.ActivationStatusRequest;
@@ -14,14 +13,12 @@ import com.gca.openapi.model.TraineeUpdateRequest;
 import com.gca.openapi.model.TraineeUpdateResponse;
 import com.gca.openapi.model.TrainingGetResponse;
 import com.gca.utils.GymTestProvider;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 
@@ -43,28 +40,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@AutoConfigureMockMvc(addFilters = false)
 class TraineeControllerTest {
 
     private final String traineeApi = format("%s/trainees", BASE_PATH);
     private final String traineeRegisterApi = format("%s/register", traineeApi);
     private final String username = "arnold.schwarzenegger";
 
-    @Mock
+    @MockitoBean
     private TrainingAppFacade facade;
 
     @Autowired
-    private ObjectMapper objectMapper;
-
     private MockMvc mockMvc;
-
-    @BeforeEach
-    void setUp() {
-        TraineeController controller = new TraineeController(facade);
-
-        mockMvc = MockMvcBuilders.standaloneSetup(controller)
-                .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
-                .build();
-    }
 
     @Test
     public void registerTrainee_returnsOkResponse() throws Exception {

@@ -6,16 +6,21 @@ import com.gca.dto.auth.AuthenticationRequestDTO;
 import com.gca.dto.filter.TrainingTraineeCriteriaFilter;
 import com.gca.dto.filter.TrainingTrainerCriteriaFilter;
 import com.gca.dto.trainee.TraineeCreateDTO;
+import com.gca.dto.trainee.TraineeGetDTO;
 import com.gca.dto.trainee.TraineeTrainersUpdateDTO;
 import com.gca.dto.trainee.TraineeUpdateRequestDTO;
 import com.gca.dto.trainee.TraineeUpdateResponseDTO;
+import com.gca.dto.trainer.AssignedTrainerDTO;
 import com.gca.dto.trainer.TrainerCreateDTO;
+import com.gca.dto.trainer.TrainerGetDTO;
 import com.gca.dto.trainer.TrainerUpdateRequestDTO;
 import com.gca.dto.trainer.TrainerUpdateResponseDTO;
+import com.gca.dto.trainer.TrainerWorkloadDTO;
 import com.gca.dto.training.TrainingCreateDTO;
 import com.gca.dto.training.TrainingDTO;
 import com.gca.dto.user.UserCredentialsDTO;
 import com.gca.exception.TokenRefreshException;
+import com.gca.integration.service.TrainerWorkloadService;
 import com.gca.mapper.rest.RestTraineeMapper;
 import com.gca.mapper.rest.RestTrainerMapper;
 import com.gca.mapper.rest.RestTrainingMapper;
@@ -52,7 +57,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+
+import static com.gca.dto.trainer.ActionType.ADD;
+import static com.gca.dto.trainer.ActionType.DELETE;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +72,7 @@ public class TrainingAppFacade {
     private final UserService userService;
     private final AuthenticationService authenticationService;
     private final JwtCookieService jwtCookieService;
+    private final TrainerWorkloadService trainerWorkloadService;
 
     private final RestTraineeMapper restTraineeMapper;
     private final RestTrainerMapper restTrainerMapper;
@@ -125,6 +135,8 @@ public class TrainingAppFacade {
     public void createTraining(TrainingCreateRequest request) {
         TrainingCreateDTO dto = restTrainingMapper.toDto(request);
         trainingService.createTraining(dto);
+
+        addTrainerWorkload(request);
     }
 
     public void changePassword(LoginChangeRequest request) {
@@ -159,6 +171,7 @@ public class TrainingAppFacade {
     }
 
     public void deleteTraineeByUsername(String username) {
+        deleteAllTrainerWorkloadForTrainee(username);
         traineeService.deleteTraineeByUsername(username);
     }
 
@@ -194,6 +207,45 @@ public class TrainingAppFacade {
         return typeList.stream()
                 .map(restTrainingMapper::toRest)
                 .toList();
+    }
+
+    private void addTrainerWorkload(TrainingCreateRequest request) {
+        TrainerGetDTO trainer = trainerService.getTrainerByUsername(request.getTrainerUsername());
+        TrainerWorkloadDTO workloadDTO = buildAddDeleteTrainerWorkloadDTO(request, trainer);
+
+        trainerWorkloadService.addOrDeleteTrainerWorkload(workloadDTO);
+    }
+
+    private void deleteAllTrainerWorkloadForTrainee(String traineeUsername) {
+        TraineeGetDTO traineeGetDTO = traineeService.getTraineeByUsername(traineeUsername);
+
+        traineeGetDTO.getTrainers().stream()
+                .map(this::buildAddDeleteTrainerWorkloadDTO)
+                .forEach(trainerWorkloadService::addOrDeleteTrainerWorkload);
+    }
+
+    private TrainerWorkloadDTO buildAddDeleteTrainerWorkloadDTO(TrainingCreateRequest request, TrainerGetDTO trainer) {
+        return TrainerWorkloadDTO.builder()
+                .trainerUsername(request.getTrainerUsername())
+                .trainerFirstName(trainer.getFirstName())
+                .trainerLastName(trainer.getLastName())
+                .trainingDate(request.getTrainingDate())
+                .trainingDuration(request.getDuration())
+                .isActive(trainer.getIsActive())
+                .actionType(ADD)
+                .build();
+    }
+
+    private TrainerWorkloadDTO buildAddDeleteTrainerWorkloadDTO(AssignedTrainerDTO assignedTrainerDTO) {
+        return TrainerWorkloadDTO.builder()
+                .trainerUsername(assignedTrainerDTO.getUsername())
+                .trainerFirstName(assignedTrainerDTO.getFirstName())
+                .trainerLastName(assignedTrainerDTO.getLastName())
+                .trainingDate(LocalDate.now())
+                .trainingDuration(0)
+                .isActive(true)
+                .actionType(DELETE)
+                .build();
     }
 
     private void addTokensToResponse(AuthTokensDTO tokens, HttpServletResponse response) {

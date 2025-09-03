@@ -146,7 +146,7 @@ public class TraineeServiceImpl implements TraineeService {
                         format(TRAINEE_NOT_FOUND_MSG, username)
                 ));
 
-        traineeRepository.deleteByUsername(username);
+        traineeRepository.deleteByUserUsername(username);
     }
 
     private List<Trainer> getTrainerList(List<String> usernames) {

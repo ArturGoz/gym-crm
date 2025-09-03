@@ -49,10 +49,12 @@ public class TrainingServiceImpl implements TrainingService {
         logger.debug("Creating training '{}'", request.getTrainingName());
 
         Training training = trainingMapper.toEntity(request);
+        Trainer trainer = getTrainer(request.getTrainerUsername());
+        Trainee trainee = getTrainee(request.getTraineeUsername());
+        TrainingType type = getTrainingType(request.getTrainingName());
 
-        training.setTrainer(getTrainer(request.getTrainerUsername()));
-        training.setTrainee(getTrainee(request.getTraineeUsername()));
-        training.setType(getTrainingType(request.getTrainingName()));
+        linkTrainerAndTrainee(trainer, trainee);
+        linkTraining(training, trainer, trainee, type);
 
         Training created = trainingRepository.save(training);
 
@@ -110,5 +112,16 @@ public class TrainingServiceImpl implements TrainingService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         format("Training type with name %s not found", username)
                 ));
+    }
+
+    private void linkTrainerAndTrainee(Trainer trainer, Trainee trainee) {
+        trainer.getTrainees().add(trainee);
+        trainee.getTrainers().add(trainer);
+    }
+
+    private void linkTraining(Training training, Trainer trainer, Trainee trainee, TrainingType type) {
+        training.setTrainer(trainer);
+        training.setTrainee(trainee);
+        training.setType(type);
     }
 }
