@@ -84,6 +84,8 @@ class TrainingServiceImplTest {
         TrainingDTO actual = service.createTraining(request);
 
         assertEquals(expected, actual);
+        assertTrue(trainer.getTrainees().contains(trainee));
+        assertTrue(trainee.getTrainers().contains(trainer));
         verify(mapper).toEntity(request);
         verify(trainerRepository).findByUserUsername(anyString());
         verify(traineeRepository).findByUserUsername(anyString());

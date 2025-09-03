@@ -41,8 +41,9 @@ import com.gca.openapi.model.TrainingGetResponse;
 import com.gca.openapi.model.TrainingTypeResponse;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class GymTestProvider {
 
@@ -220,7 +221,9 @@ public class GymTestProvider {
                 .id(1L)
                 .user(User.builder().id(1L).build())
                 .address("Kyiv, Shevchenka 1")
-                .trainers(Set.of(constructTrainer(2L), constructTrainer(3L)))
+                .trainers(new HashSet<>(Arrays.asList(
+                        constructTrainer(2L), constructTrainer(3L)
+                )))
                 .build();
     }
 

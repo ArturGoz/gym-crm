@@ -1,20 +1,17 @@
 package com.gca.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gca.facade.TrainingAppFacade;
 import com.gca.openapi.model.LoginChangeRequest;
 import com.gca.openapi.model.LoginRequest;
 import com.gca.utils.GymTestProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static com.gca.controller.ApiConstant.BASE_PATH;
 import static com.gca.utils.JsonUtils.asJsonString;
@@ -26,25 +23,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
 
     private final String authApi = format("%s/%s", BASE_PATH, "auth");
 
-    @Mock
+    @MockitoBean
     private TrainingAppFacade facade;
 
+    @Autowired
     private MockMvc mockMvc;
-
-    @BeforeEach
-    void setUp() {
-        AuthController controller = new AuthController(facade);
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        mockMvc = MockMvcBuilders.standaloneSetup(controller)
-                .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
-                .build();
-    }
 
     @Test
     void login_shouldReturnOk() throws Exception {
