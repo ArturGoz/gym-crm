@@ -19,6 +19,7 @@
         <java.version>17</java.version>
         <lombok.version>1.18.32</lombok.version>
         <database-rider.version>1.41.0</database-rider.version>
+        <spring-cloud.version>2025.0.0</spring-cloud.version>
         <sonar.projectKey>workload-service</sonar.projectKey>
         <sonar.organization>arturgoz</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -36,6 +37,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -110,6 +115,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>

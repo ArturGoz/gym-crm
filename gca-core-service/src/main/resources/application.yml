@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: gca-core-service
   profiles:
     active: dev
   datasource:
@@ -42,3 +44,8 @@ login:
   attempt:
     max: 3
     block-time-ms: 60000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
