@@ -33,7 +33,8 @@ public class ErrorHandler {
             "Trainer username must be provided",
             "Username must not be null",
             "Old password is wrong",
-            "Active status is wrong"
+            "Active status is wrong",
+            "Failed to process trainer workload request"
     );
 
     @ExceptionHandler(ServiceException.class)
