@@ -52,6 +52,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(BASE_PATH + "/auth/login").permitAll()
+                        .requestMatchers(BASE_PATH + "/auth/refresh").permitAll()
                         .requestMatchers(BASE_PATH + "/trainees/register").permitAll()
                         .requestMatchers(BASE_PATH + "/trainers/register").permitAll()
                         .anyRequest().authenticated()

@@ -14,7 +14,7 @@ public class GatewayRoutesConfig {
     public static final String LB_GCA_CORE_SERVICE = "lb://GCA-CORE-SERVICE";
     public static final String LB_WORKLOAD_SERVICE = "lb://WORKLOAD-SERVICE";
 
-    public static final List<String> gcaCorePaths = List.of(
+    public static final List<String> GCA_CORE_PATHS = List.of(
             BASE_PATH + "/trainees/**",
             BASE_PATH + "/trainers/**",
             BASE_PATH + "/trainings/**",
@@ -30,7 +30,7 @@ public class GatewayRoutesConfig {
                         .uri(LB_WORKLOAD_SERVICE))
 
                 .route("gca-core-service", r -> r
-                        .path(gcaCorePaths.toArray(new String[0]))
+                        .path(GCA_CORE_PATHS.toArray(new String[0]))
                         .uri(LB_GCA_CORE_SERVICE))
                 .build();
     }

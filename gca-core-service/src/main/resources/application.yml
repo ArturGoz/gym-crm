@@ -34,7 +34,7 @@ gca:
     max-memory-threshold: 2000
 
 jwt:
-  secret: gym-crm-application-SECRETKEY123!@#
+  secret: ${JWT_SECRET}
   access:
     duration: 3600000
   refresh:
