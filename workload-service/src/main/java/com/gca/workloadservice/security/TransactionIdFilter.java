@@ -1,4 +1,4 @@
-package com.gca.security;
+package com.gca.workloadservice.security;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
