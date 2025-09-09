@@ -1,6 +1,8 @@
 package com.gca.workloadservice.config;
 
 import com.gca.workloadservice.security.JwtTokenFilter;
+import com.gca.workloadservice.security.RequestResponseLoggingFilter;
+import com.gca.workloadservice.security.TransactionIdFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +22,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     private final JwtTokenFilter jwtTokenFilter;
+    private final RequestResponseLoggingFilter requestResponseLoggingFilter;
+    private final TransactionIdFilter transactionIdFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -34,6 +39,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(transactionIdFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(requestResponseLoggingFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

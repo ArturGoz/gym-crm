@@ -37,13 +37,13 @@ public class WorkloadConnector {
 
         HttpEntity<TrainerWorkloadDTO> entity = new HttpEntity<>(request, headers);
 
-        log.info("Calling workload service for trainer: {}", request.getTrainerUsername());
+        log.info("Calling workload service with request: {}", request);
         return restTemplate.postForEntity(TRAINER_WORKLOAD_URL, entity, Void.class);
     }
 
     private ResponseEntity<Void> fallback(TrainerWorkloadDTO request, Throwable ex) {
-        log.error("Workload service unavailable for trainer: {}, reason: {}",
-                request.getTrainerUsername(), ex.getMessage());
+        log.error("Workload service unavailable for request: {}, reason: {}",
+                request, ex.getMessage());
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
 
