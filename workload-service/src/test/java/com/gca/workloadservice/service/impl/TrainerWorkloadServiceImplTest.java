@@ -6,6 +6,7 @@ import com.gca.workloadservice.model.MonthWorkload;
 import com.gca.workloadservice.model.TrainerWorkload;
 import com.gca.workloadservice.model.YearWorkload;
 import com.gca.workloadservice.repository.TrainerWorkloadRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -88,25 +90,76 @@ class TrainerWorkloadServiceImplTest {
         verify(repository).deleteTrainerWorkloadsByUsername(username);
     }
 
-    private TrainerWorkload buildExistingTrainerWithYearAndMonth(TrainerWorkloadRequest request) {
-        MonthWorkload existingMonth = MonthWorkload.builder()
-                .month(3)
-                .trainingSummaryDuration(100L)
-                .build();
+    @Test
+    void getTrainerWorkloadDurationSummary_NoMatchingMonth_ReturnsZero() {
+        MonthWorkload month = buildMonth(2, 150L);
+        YearWorkload year = buildYear(List.of(month));
+        TrainerWorkload trainer = buildTrainer(List.of(year));
 
-        YearWorkload existingYear = YearWorkload.builder()
+        when(repository.findTrainerWorkloadsByUsername("ronnie.coleman"))
+                .thenReturn(Optional.of(trainer));
+
+        long actual = service.getTrainerWorkloadDurationSummary("ronnie.coleman", 2025, 3);
+
+        assertThat(actual).isEqualTo(0L);
+    }
+
+    @Test
+    void getTrainerWorkloadDurationSummary_ExistingTrainer_ReturnsSum() {
+        MonthWorkload month1 = buildMonth(3, 100L);
+        MonthWorkload month2 = buildMonth(3, 200L);
+        YearWorkload year = buildYear(List.of(month1, month2));
+        TrainerWorkload trainer = buildTrainer(List.of(year));
+
+        when(repository.findTrainerWorkloadsByUsername("ronnie.coleman"))
+                .thenReturn(Optional.of(trainer));
+
+        long actual = service.getTrainerWorkloadDurationSummary("ronnie.coleman", 2025, 3);
+
+        assertThat(actual).isEqualTo(300L);
+    }
+
+    @Test
+    void getTrainerWorkloadDurationSummary_TrainerNotFound_ThrowsException() {
+        String username = "unknown.trainer";
+
+        when(repository.findTrainerWorkloadsByUsername(username))
+                .thenReturn(Optional.empty());
+
+        Throwable thrown = catchThrowable(() ->
+                service.getTrainerWorkloadDurationSummary(username, 2025, 3)
+        );
+
+        assertThat(thrown)
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Trainer not found: " + username);
+    }
+
+    private MonthWorkload buildMonth(int month, long duration) {
+        return MonthWorkload.builder()
+                .month(month)
+                .trainingSummaryDuration(duration)
+                .build();
+    }
+
+    private YearWorkload buildYear(List<MonthWorkload> months) {
+        YearWorkload y = YearWorkload.builder()
                 .year(2025)
-                .months(new ArrayList<>(List.of(existingMonth)))
+                .months(months)
                 .build();
-        existingMonth.setYearWorkload(existingYear);
+        months.forEach(m -> m.setYearWorkload(y));
 
-        TrainerWorkload existingTrainer = TrainerWorkload.builder()
-                .username(request.getTrainerUsername())
-                .years(new ArrayList<>(List.of(existingYear)))
+        return y;
+    }
+
+    private TrainerWorkload buildTrainer(List<YearWorkload> years) {
+        TrainerWorkload t = TrainerWorkload.builder()
+                .username("ronnie.coleman")
+                .years(years)
                 .build();
-        existingYear.setTrainerWorkload(existingTrainer);
+        years.forEach(y -> y.setTrainerWorkload(t));
 
-        return existingTrainer;
+        return t;
     }
 
     private TrainerWorkloadRequest buildRonnieColemanWorkload() {
@@ -131,5 +184,26 @@ class TrainerWorkloadServiceImplTest {
         request.setTrainingDuration(120);
 
         return request;
+    }
+
+    private TrainerWorkload buildExistingTrainerWithYearAndMonth(TrainerWorkloadRequest request) {
+        MonthWorkload existingMonth = MonthWorkload.builder()
+                .month(3)
+                .trainingSummaryDuration(100L)
+                .build();
+
+        YearWorkload existingYear = YearWorkload.builder()
+                .year(2025)
+                .months(new ArrayList<>(List.of(existingMonth)))
+                .build();
+        existingMonth.setYearWorkload(existingYear);
+
+        TrainerWorkload existingTrainer = TrainerWorkload.builder()
+                .username(request.getTrainerUsername())
+                .years(new ArrayList<>(List.of(existingYear)))
+                .build();
+        existingYear.setTrainerWorkload(existingTrainer);
+
+        return existingTrainer;
     }
 }

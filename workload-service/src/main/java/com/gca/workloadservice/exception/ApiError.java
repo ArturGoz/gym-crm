@@ -5,11 +5,13 @@ import org.springframework.http.HttpStatus;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Getter
 enum ApiError {
 
     INVALID_REQUEST_ERROR(2400, "Invalid or malformed request data", BAD_REQUEST),
+    NOT_FOUND_ERROR(2835, "Requested data was not found: ", NOT_FOUND),
     VALIDATION_ERROR(2760, "Validation error: ", BAD_REQUEST),
     SERVER_ERROR(3200, "Internal processing error", INTERNAL_SERVER_ERROR);
 
