@@ -7,6 +7,7 @@ import com.gca.workloadservice.model.TrainerWorkload;
 import com.gca.workloadservice.model.YearWorkload;
 import com.gca.workloadservice.repository.TrainerWorkloadRepository;
 import com.gca.workloadservice.service.TrainerWorkloadService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,19 @@ public class TrainerWorkloadServiceImpl implements TrainerWorkloadService {
         updateMonthDuration(monthWorkload, request.getTrainingDuration());
 
         return repository.save(trainer);
+    }
+
+    @Override
+    public long getTrainerWorkloadDurationSummary(String username, int year, int month) {
+        TrainerWorkload trainer = repository.findTrainerWorkloadsByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Trainer not found: " + username));
+
+        return trainer.getYears().stream()
+                .filter(y -> y.getYear() == year)
+                .flatMap(y -> y.getMonths().stream())
+                .filter(m -> m.getMonth() == month)
+                .mapToLong(MonthWorkload::getTrainingSummaryDuration)
+                .sum();
     }
 
     @Override

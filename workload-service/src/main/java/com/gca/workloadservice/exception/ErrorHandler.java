@@ -1,6 +1,7 @@
 package com.gca.workloadservice.exception;
 
 import com.gca.openapi.model.ErrorResponse;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.stream.Collectors;
 
 import static com.gca.workloadservice.exception.ApiError.INVALID_REQUEST_ERROR;
+import static com.gca.workloadservice.exception.ApiError.NOT_FOUND_ERROR;
 import static com.gca.workloadservice.exception.ApiError.SERVER_ERROR;
 import static com.gca.workloadservice.exception.ApiError.VALIDATION_ERROR;
 
@@ -30,6 +32,13 @@ public class ErrorHandler {
         log.error("NullPointer Exception: {}", ex.getMessage());
 
         return buildErrorResponse(INVALID_REQUEST_ERROR);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFoundExceptions(Exception ex) {
+        log.error("Entity not found Exception: {}", ex.getMessage());
+
+        return buildErrorResponse(NOT_FOUND_ERROR, ex.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)

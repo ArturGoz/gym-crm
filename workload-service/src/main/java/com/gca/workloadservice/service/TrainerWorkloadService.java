@@ -7,5 +7,7 @@ import jakarta.validation.Valid;
 public interface TrainerWorkloadService {
     TrainerWorkload addTrainingWorkload(@Valid TrainerWorkloadRequest request);
 
+    long getTrainerWorkloadDurationSummary(String username, int year, int month);
+
     void deleteTrainingWorkload(String username);
 }

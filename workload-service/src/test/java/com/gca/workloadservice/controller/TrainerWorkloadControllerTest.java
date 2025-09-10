@@ -21,7 +21,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,6 +74,26 @@ class TrainerWorkloadControllerTest {
 
         verify(service).deleteTrainingWorkload("taras.shevchenko");
         verify(service, never()).addTrainingWorkload(any());
+    }
+
+    @Test
+    void getTrainerWorkload_ReturnsWorkload() throws Exception {
+        String username = "ronnie.coleman";
+        int year = 2025;
+        int month = 3;
+        long expectedWorkload = 300L;
+
+        when(service.getTrainerWorkloadDurationSummary(username, year, month))
+                .thenReturn(expectedWorkload);
+
+        mockMvc.perform(get(trainersApi + "/workload/{username}", username)
+                        .param("year", String.valueOf(year))
+                        .param("month", String.valueOf(month))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(String.valueOf(expectedWorkload)));
+
+        verify(service).getTrainerWorkloadDurationSummary(username, year, month);
     }
 
     private TrainerWorkloadRequest buildTrainerWorkloadRequest(TrainerWorkloadRequest.ActionTypeEnum actionType) {

@@ -1,6 +1,7 @@
 package com.gca.workloadservice.exception;
 
 import com.gca.openapi.model.ErrorResponse;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import static com.gca.workloadservice.exception.ApiError.INVALID_REQUEST_ERROR;
+import static com.gca.workloadservice.exception.ApiError.NOT_FOUND_ERROR;
 import static com.gca.workloadservice.exception.ApiError.SERVER_ERROR;
 import static com.gca.workloadservice.exception.ApiError.VALIDATION_ERROR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,6 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 class ErrorHandlerTest {
 
@@ -70,5 +73,19 @@ class ErrorHandlerTest {
         assertEquals(BAD_REQUEST, actual.getStatusCode());
         assertEquals(INVALID_REQUEST_ERROR.getCode(), actual.getBody().getErrorCode());
         assertEquals(INVALID_REQUEST_ERROR.getMessage(), actual.getBody().getErrorMessage());
+    }
+
+    @Test
+    void handleEntityNotFoundExceptions_shouldReturnNotFoundErrorWithMessage() {
+        String message = "Trainee with ID 5 not found";
+        EntityNotFoundException ex = new EntityNotFoundException(message);
+
+        ResponseEntity<ErrorResponse> actual = errorHandler.handleEntityNotFoundExceptions(ex);
+
+        assertNotNull(actual.getBody());
+        assertEquals(NOT_FOUND, actual.getStatusCode());
+        assertEquals(NOT_FOUND_ERROR.getCode(), actual.getBody().getErrorCode());
+        assertTrue(actual.getBody().getErrorMessage().contains(NOT_FOUND_ERROR.getMessage()));
+        assertTrue(actual.getBody().getErrorMessage().contains(message));
     }
 }
