@@ -45,7 +45,66 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         default:
           description: Unexpected error
-
+  /trainers/workload/{username}:
+    get:
+      tags:
+        - Trainers Workload
+      summary: Get trainer workload in hours for a specific year and month
+      description: Returns total workload in hours for a given trainer
+      operationId: getTrainerWorkload
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Trainer's username
+          schema:
+            type: string
+            example: "ricardo.milos"
+        - name: year
+          in: query
+          required: true
+          description: Year of workload
+          schema:
+            type: integer
+            example: 2025
+        - name: month
+          in: query
+          required: true
+          description: Month of workload (1-12)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+            example: 9
+      responses:
+        '200':
+          description: Total workload in hours
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+                example: 42
+        '400':
+          description: Invalid year, month, or username
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Unexpected error
 components:
   schemas:
     TrainerWorkloadRequest:
