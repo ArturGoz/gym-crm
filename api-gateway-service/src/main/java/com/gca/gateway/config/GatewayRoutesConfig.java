@@ -23,14 +23,19 @@ public class GatewayRoutesConfig {
 
     @Bean
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
-
         return builder.routes()
                 .route("workload-service", r -> r
                         .path(BASE_PATH + "/trainers/workload/**")
+                        .filters(f -> f.circuitBreaker(c -> c
+                                .setName("workload-service")
+                                .setFallbackUri("forward:/fallback/workload")))
                         .uri(LB_WORKLOAD_SERVICE))
 
                 .route("gca-core-service", r -> r
                         .path(GCA_CORE_PATHS.toArray(new String[0]))
+                        .filters(f -> f.circuitBreaker(c -> c
+                                .setName("gca-core-service")
+                                .setFallbackUri("forward:/fallback/core")))
                         .uri(LB_GCA_CORE_SERVICE))
                 .build();
     }
