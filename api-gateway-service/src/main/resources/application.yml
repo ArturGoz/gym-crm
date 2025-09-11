@@ -12,6 +12,25 @@ spring:
             locator:
               lower-case-service-id: true
               enabled: true
+          httpclient:
+            response-timeout: 5s
+            connect-timeout: 3000
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 2
+    instances:
+      gca-core-service:
+        baseConfig: default
+      workload-service:
+        baseConfig: default
 
 eureka:
   client:
