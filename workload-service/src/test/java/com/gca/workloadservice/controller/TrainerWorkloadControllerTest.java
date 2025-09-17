@@ -1,83 +1,34 @@
 package com.gca.workloadservice.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gca.openapi.model.TrainerWorkloadRequest;
 import com.gca.workloadservice.service.TrainerWorkloadService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.time.LocalDate;
-
-import static com.gca.openapi.model.TrainerWorkloadRequest.ActionTypeEnum.ADD;
-import static com.gca.openapi.model.TrainerWorkloadRequest.ActionTypeEnum.DELETE;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc(addFilters = false)
 class TrainerWorkloadControllerTest {
 
     private final String trainersApi = String.format("%s/%s", ApiConstant.BASE_PATH, "trainers");
 
-    @Mock
+    @MockitoBean
     private TrainerWorkloadService service;
 
+    @Autowired
     private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper;
-
-    @BeforeEach
-    void setUp() {
-        TrainerWorkloadController controller = new TrainerWorkloadController(service);
-        objectMapper = new ObjectMapper();
-        objectMapper.findAndRegisterModules();
-
-        mockMvc = MockMvcBuilders.standaloneSetup(controller)
-                .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
-                .build();
-    }
-
     @Test
-    void addOrDeleteTrainerWorkload_shouldCallAdd_whenActionIsAdd() throws Exception {
-        TrainerWorkloadRequest request = buildTrainerWorkloadRequest(ADD);
-
-        mockMvc.perform(post(trainersApi + "/workload")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
-
-        verify(service).addTrainingWorkload(request);
-        verify(service, never()).deleteTrainingWorkload(anyString());
-    }
-
-    @Test
-    void addOrDeleteTrainerWorkload_shouldCallDelete_whenActionIsDelete() throws Exception {
-        TrainerWorkloadRequest request = buildTrainerWorkloadRequest(DELETE);
-
-        mockMvc.perform(post(trainersApi + "/workload")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
-
-        verify(service).deleteTrainingWorkload("taras.shevchenko");
-        verify(service, never()).addTrainingWorkload(any());
-    }
-
-    @Test
-    void getTrainerWorkload_ReturnsWorkload() throws Exception {
+    void getTrainerWorkload_ReturnsWorkloadDurationSummary() throws Exception {
         String username = "ronnie.coleman";
         int year = 2025;
         int month = 3;
@@ -94,17 +45,5 @@ class TrainerWorkloadControllerTest {
                 .andExpect(content().string(String.valueOf(expectedWorkload)));
 
         verify(service).getTrainerWorkloadDurationSummary(username, year, month);
-    }
-
-    private TrainerWorkloadRequest buildTrainerWorkloadRequest(TrainerWorkloadRequest.ActionTypeEnum actionType) {
-        TrainerWorkloadRequest request = new TrainerWorkloadRequest();
-        request.setTrainerUsername("taras.shevchenko");
-        request.setTrainerFirstName("taras");
-        request.setTrainerLastName("shevchenko");
-        request.setTrainingDate(LocalDate.of(3333, 1, 1));
-        request.setIsActive(true);
-        request.setActionType(actionType);
-
-        return request;
     }
 }

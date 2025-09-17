@@ -8,3 +8,12 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
+
+jwt:
+  secret: gym-crm-application-SECRETKEY123!@#
+
+jms:
+  queue:
+    trainer-workload: trainer.workload.queue
+  listener:
+    concurrency: "3-10"

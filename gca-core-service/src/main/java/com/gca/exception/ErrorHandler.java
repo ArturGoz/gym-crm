@@ -19,6 +19,7 @@ import static com.gca.exception.ApiError.INVALID_REQUEST_ERROR;
 import static com.gca.exception.ApiError.NOT_FOUND_ERROR;
 import static com.gca.exception.ApiError.REFRESH_TOKEN_ERROR;
 import static com.gca.exception.ApiError.SERVER_ERROR;
+import static com.gca.exception.ApiError.SERVICE_UNAVAILABLE_ERROR;
 import static com.gca.exception.ApiError.TOO_MANY_REQUESTS_ERROR;
 import static com.gca.exception.ApiError.VALIDATION_ERROR;
 
@@ -36,14 +37,6 @@ public class ErrorHandler {
             "Active status is wrong",
             "Failed to process trainer workload request"
     );
-
-    @ExceptionHandler(ServiceException.class)
-    public ResponseEntity<ErrorResponse> handleServiceException(ServiceException ex) {
-        log.error("ServiceException: {}", ex.getMessage());
-        ApiError error = resolveError(ex);
-
-        return buildErrorResponse(error);
-    }
 
     @ExceptionHandler(TokenRefreshException.class)
     public ResponseEntity<ErrorResponse> handleTokenRefreshException(TokenRefreshException ex) {
@@ -80,18 +73,33 @@ public class ErrorHandler {
         return buildErrorResponse(VALIDATION_ERROR, extractValidationMessage(ex));
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleUnhandledExceptions(Exception ex) {
-        log.error("Unhandled Exception: {}", ex.getMessage());
-
-        return buildErrorResponse(SERVER_ERROR);
-    }
-
     @ExceptionHandler(UserNotAuthenticatedException.class)
     public ResponseEntity<ErrorResponse> handleUserNotAuthenticatedExceptions(Exception ex) {
         log.error("Authentication Exception: {}", ex.getMessage());
 
         return buildErrorResponse(AUTHENTICATION_ERROR);
+    }
+
+    @ExceptionHandler(ServiceException.class)
+    public ResponseEntity<ErrorResponse> handleServiceException(ServiceException ex) {
+        log.error("ServiceException: {}", ex.getMessage(), ex);
+        ApiError error = resolveError(ex);
+
+        return buildErrorResponse(error);
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleServiceUnavailableException(ServiceUnavailableException ex) {
+        log.error("Service Unavailable: {}", ex.getMessage(), ex);
+
+        return buildErrorResponse(SERVICE_UNAVAILABLE_ERROR);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleUnhandledExceptions(Exception ex) {
+        log.error("Unhandled Exception: {}", ex.getMessage(), ex);
+
+        return buildErrorResponse(SERVER_ERROR);
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(ApiError apiError) {

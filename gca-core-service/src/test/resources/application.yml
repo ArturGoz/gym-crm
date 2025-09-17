@@ -30,6 +30,11 @@ jwt:
   refresh:
     duration: 604800000
 
+jms:
+  queue:
+    trainer-workload: trainer.workload.queue
+  request-timeout-ms: 5000
+
 login:
   attempt:
     max: 3

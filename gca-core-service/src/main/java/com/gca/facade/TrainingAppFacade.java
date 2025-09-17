@@ -213,7 +213,7 @@ public class TrainingAppFacade {
         TrainerGetDTO trainer = trainerService.getTrainerByUsername(request.getTrainerUsername());
         TrainerWorkloadDTO workloadDTO = buildAddDeleteTrainerWorkloadDTO(request, trainer);
 
-        trainerWorkloadService.addOrDeleteTrainerWorkload(workloadDTO);
+        trainerWorkloadService.notifyWorkloadService(workloadDTO);
     }
 
     private void deleteAllTrainerWorkloadForTrainee(String traineeUsername) {
@@ -221,7 +221,7 @@ public class TrainingAppFacade {
 
         traineeGetDTO.getTrainers().stream()
                 .map(this::buildAddDeleteTrainerWorkloadDTO)
-                .forEach(trainerWorkloadService::addOrDeleteTrainerWorkload);
+                .forEach(trainerWorkloadService::notifyWorkloadService);
     }
 
     private TrainerWorkloadDTO buildAddDeleteTrainerWorkloadDTO(TrainingCreateRequest request, TrainerGetDTO trainer) {
@@ -242,7 +242,7 @@ public class TrainingAppFacade {
                 .trainerFirstName(assignedTrainerDTO.getFirstName())
                 .trainerLastName(assignedTrainerDTO.getLastName())
                 .trainingDate(LocalDate.now())
-                .trainingDuration(0)
+                .trainingDuration(1)
                 .isActive(true)
                 .actionType(DELETE)
                 .build();

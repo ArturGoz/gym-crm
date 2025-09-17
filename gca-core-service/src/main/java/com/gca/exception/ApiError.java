@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -20,7 +21,9 @@ enum ApiError {
     SERVER_ERROR(3200, "Internal processing error", INTERNAL_SERVER_ERROR),
     DATABASE_ERROR(3358, "Unexpected database access failure", INTERNAL_SERVER_ERROR),
     TOO_MANY_REQUESTS_ERROR(4290, "Too many requests, please try later", TOO_MANY_REQUESTS),
-    REFRESH_TOKEN_ERROR(4500, "Refresh token expired", NOT_FOUND);
+    REFRESH_TOKEN_ERROR(4500, "Refresh token expired", NOT_FOUND),
+    SERVICE_UNAVAILABLE_ERROR(5000,
+            "Service temporarily unavailable. Please try again later", SERVICE_UNAVAILABLE);
 
     private final int code;
     private final String message;
