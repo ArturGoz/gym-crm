@@ -218,7 +218,7 @@ class TrainingAppFacadeTest {
 
         verify(restTrainingMapper).toDto(restRequest);
         verify(trainingService).createTraining(dto);
-        verify(trainerWorkloadService).addOrDeleteTrainerWorkload(any(TrainerWorkloadDTO.class));
+        verify(trainerWorkloadService).notifyWorkloadService(any(TrainerWorkloadDTO.class));
     }
 
     @Test
@@ -311,7 +311,7 @@ class TrainingAppFacadeTest {
         facade.deleteTraineeByUsername(username);
 
         verify(traineeService).deleteTraineeByUsername(username);
-        verify(trainerWorkloadService).addOrDeleteTrainerWorkload(any(TrainerWorkloadDTO.class));
+        verify(trainerWorkloadService).notifyWorkloadService(any(TrainerWorkloadDTO.class));
     }
 
     @Test

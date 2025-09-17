@@ -4,7 +4,6 @@ import com.gca.openapi.model.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import org.junit.jupiter.api.AssertionsKt;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -19,6 +18,7 @@ import static com.gca.exception.ApiError.INVALID_REQUEST_ERROR;
 import static com.gca.exception.ApiError.NOT_FOUND_ERROR;
 import static com.gca.exception.ApiError.REFRESH_TOKEN_ERROR;
 import static com.gca.exception.ApiError.SERVER_ERROR;
+import static com.gca.exception.ApiError.SERVICE_UNAVAILABLE_ERROR;
 import static com.gca.exception.ApiError.VALIDATION_ERROR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 class ErrorHandlerTest {
@@ -84,10 +85,23 @@ class ErrorHandlerTest {
 
         ResponseEntity<ErrorResponse> actual = errorHandler.handleTokenRefreshException(ex);
 
-        AssertionsKt.assertNotNull(actual.getBody());
+        assertNotNull(actual.getBody());
         assertEquals(NOT_FOUND, actual.getStatusCode());
         assertEquals(REFRESH_TOKEN_ERROR.getCode(), actual.getBody().getErrorCode());
         assertEquals(REFRESH_TOKEN_ERROR.getMessage(), actual.getBody().getErrorMessage());
+    }
+
+    @Test
+    void handleServiceUnavailableException_shouldReturnServiceUnavailableError() {
+        String message = "Workload service unavailable";
+        ServiceUnavailableException ex = new ServiceUnavailableException(message);
+
+        ResponseEntity<ErrorResponse> actual = errorHandler.handleServiceUnavailableException(ex);
+
+        assertNotNull(actual.getBody());
+        assertEquals(SERVICE_UNAVAILABLE, actual.getStatusCode());
+        assertEquals(SERVICE_UNAVAILABLE_ERROR.getCode(), actual.getBody().getErrorCode());
+        assertEquals(SERVICE_UNAVAILABLE_ERROR.getMessage(), actual.getBody().getErrorMessage());
     }
 
     @Test

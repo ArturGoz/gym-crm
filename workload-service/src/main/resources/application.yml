@@ -17,6 +17,16 @@ spring:
     console:
       enabled: true
       path: /h2-console
+  activemq:
+    broker-url: ${ACTIVEMQ_BROKER_URL}
+    user: ${ACTIVEMQ_USER}
+    password: ${ACTIVEMQ_PASSWORD}
+
+jms:
+  queue:
+    trainer-workload: trainer.workload.queue
+  listener:
+    concurrency: "3-10"
 
 springdoc:
   swagger-ui:

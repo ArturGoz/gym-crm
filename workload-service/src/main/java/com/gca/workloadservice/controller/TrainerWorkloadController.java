@@ -1,6 +1,5 @@
 package com.gca.workloadservice.controller;
 
-import com.gca.openapi.model.TrainerWorkloadRequest;
 import com.gca.workloadservice.service.TrainerWorkloadService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -11,8 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -25,16 +22,9 @@ public class TrainerWorkloadController {
 
     private final TrainerWorkloadService service;
 
-    @PostMapping("/workload")
-    public ResponseEntity<Void> addOrDeleteTrainerWorkload(@RequestBody TrainerWorkloadRequest request) {
-        processTrainerWorkload(request);
-
-        return ResponseEntity.ok().build();
-    }
-
     @Validated
     @GetMapping("/workload/{username}")
-    public ResponseEntity<Long> getTrainerWorkload(
+    public ResponseEntity<Long> getTrainerWorkloadDurationSummary(
             @PathVariable @NotBlank String username,
             @RequestParam @Min(0) int year,
             @RequestParam @Min(1) @Max(12) int month
@@ -42,12 +32,5 @@ public class TrainerWorkloadController {
         long workload = service.getTrainerWorkloadDurationSummary(username, year, month);
 
         return ResponseEntity.ok(workload);
-    }
-
-    private void processTrainerWorkload(TrainerWorkloadRequest request) {
-        switch (request.getActionType()) {
-            case ADD -> service.addTrainingWorkload(request);
-            case DELETE -> service.deleteTrainingWorkload(request.getTrainerUsername());
-        }
     }
 }
