@@ -5,12 +5,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gca.openapi.model.TrainerWorkloadRequest;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.service.spi.ServiceException;
 import org.slf4j.MDC;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
+
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +38,7 @@ public class TrainerWorkloadListener {
         try {
             TrainerWorkloadRequest request = deserializeRequest(payload);
             logReceivedMessage(props.jmsId(), request);
+            validateRequest(request);
 
             dispatcher.dispatchTrainerWorkloadRequest(request);
         } finally {
@@ -76,6 +83,15 @@ public class TrainerWorkloadListener {
 
     private void clearMdc() {
         MDC.remove(MDC_TRANSACTION_ID);
+    }
+
+    private void validateRequest(TrainerWorkloadRequest request) {
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<TrainerWorkloadRequest>> violations = validator.validate(request);
+
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
     }
 
     private void logReceivedMessage(String jmsId, TrainerWorkloadRequest dto) {
