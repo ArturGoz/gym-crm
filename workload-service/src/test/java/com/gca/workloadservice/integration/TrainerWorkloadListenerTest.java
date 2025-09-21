@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gca.openapi.model.TrainerWorkloadRequest;
 import jakarta.jms.Message;
+import jakarta.validation.ConstraintViolationException;
 import org.hibernate.service.spi.ServiceException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,8 +13,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.MDC;
 
+import java.time.LocalDate;
+
+import static com.gca.openapi.model.TrainerWorkloadRequest.ActionTypeEnum.ADD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,9 +44,10 @@ class TrainerWorkloadListenerTest {
     private TrainerWorkloadListener listener;
 
     @Test
-    void onMessage_successfullyProcessesMessage() throws Exception {
-        String payload = "{\"trainer\":\"John\"}";
-        TrainerWorkloadRequest request = new TrainerWorkloadRequest();
+    void onMessage_validRequest_success() throws Exception {
+        TrainerWorkloadRequest request = buildValidTrainerWorkloadRequest();
+        String payload = "{\"trainerUsername\":\"john.doe\",\"trainingDate\":\"2025-09-21\"," +
+                "\"trainingDuration\":60,\"isActive\":true,\"actionType\":\"ADD\"}";
 
         when(jmsMessage.getJMSMessageID()).thenReturn("jms-123");
         when(jmsMessage.getStringProperty(TRANSACTION_ID_HEADER)).thenReturn("tx-456");
@@ -51,18 +60,21 @@ class TrainerWorkloadListenerTest {
     }
 
     @Test
-    void onMessage_missingTransactionId_putsNA() throws Exception {
+    void onMessage_invalidRequest_throwsConstraintViolationException() throws Exception {
+        TrainerWorkloadRequest invalidRequest = new TrainerWorkloadRequest();
         String payload = "{}";
-        TrainerWorkloadRequest request = new TrainerWorkloadRequest();
 
-        when(jmsMessage.getJMSMessageID()).thenReturn("jms-1");
-        when(jmsMessage.getStringProperty(TRANSACTION_ID_HEADER)).thenReturn(null);
-        when(objectMapper.readValue(payload, TrainerWorkloadRequest.class)).thenReturn(request);
+        when(jmsMessage.getJMSMessageID()).thenReturn("jms-124");
+        when(jmsMessage.getStringProperty(TRANSACTION_ID_HEADER)).thenReturn("tx-789");
+        when(objectMapper.readValue(payload, TrainerWorkloadRequest.class)).thenReturn(invalidRequest);
 
-        listener.onMessage(payload, jmsMessage);
+        Throwable thrown = assertThrows(ConstraintViolationException.class, () ->
+                listener.onMessage(payload, jmsMessage)
+        );
 
-        verify(dispatcher).dispatchTrainerWorkloadRequest(request);
+        assertNotNull(thrown.getMessage());
         assertThat(MDC.get(MDC_TRANSACTION_ID)).isNull();
+        verify(dispatcher, never()).dispatchTrainerWorkloadRequest(any());
     }
 
     @Test
@@ -81,5 +93,18 @@ class TrainerWorkloadListenerTest {
                 .isInstanceOf(ServiceException.class)
                 .hasMessageContaining("Failed to deserialize workload request");
         assertThat(MDC.get(MDC_TRANSACTION_ID)).isNull();
+    }
+
+    private TrainerWorkloadRequest buildValidTrainerWorkloadRequest() {
+        TrainerWorkloadRequest request = new TrainerWorkloadRequest();
+        request.setTrainerUsername("john.cena");
+        request.setTrainerFirstName("John");
+        request.setTrainerLastName("Cena");
+        request.setTrainingDate(LocalDate.now());
+        request.setTrainingDuration(60);
+        request.setIsActive(true);
+        request.setActionType(ADD);
+
+        return request;
     }
 }
