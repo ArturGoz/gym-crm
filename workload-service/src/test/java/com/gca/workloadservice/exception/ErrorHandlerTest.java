@@ -1,7 +1,6 @@
 package com.gca.workloadservice.exception;
 
 import com.gca.openapi.model.ErrorResponse;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
