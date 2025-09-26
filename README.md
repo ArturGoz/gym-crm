@@ -1,18 +1,18 @@
 # Gym crm
 
 Gym CRM System is a microservices-based application for managing gyms, trainers, trainees, and workouts.  
-The system is built with **Java 17**, **Spring Boot**, **PostgreSQL**, **ActiveMQ**, and **Spring Cloud**.
+The system is built with **Java 17**, **Spring Boot**, **PostgreSQL**, **ActiveMQ**, and **Spring Cloud**, **MongoDB**.
 
 ---
 
 ## Services
 
-| Service             | Port | Description | Database |
-|---------------------|------|-------------|----------|
-| `discovery-service` | 8761 | Eureka Server for service discovery | - |
-| `api-gateway`       | 8765 | API Gateway with routing and JWT validation | - |
+| Service             | Port | Description | Database   |
+|---------------------|------|-------------|------------|
+| `discovery-service` | 8761 | Eureka Server for service discovery | -          |
+| `api-gateway`       | 8765 | API Gateway with routing and JWT validation | -          |
 | `gca-core-service`  | 8080 | Core business logic, authentication, JWT, database operations | PostgreSQL |
-| `workload-service`  | 8081 | Trainer workload management via JMS and REST | - |
+| `workload-service`  | 8081 | Trainer workload management via JMS and REST | MongoDB    |
 
 ---
 
@@ -25,6 +25,7 @@ To run this application, you should have the following installed:
 - **Git**
 - **PostgreSQL 13+**
 - **Apache ActiveMQ**
+- **MongoDB**
 
 ---
 
@@ -46,12 +47,15 @@ git clone https://github.com/ArturGoz/gym-crm
 - DB_USERNAME=gca
 - DB_PASSWORD=gca
 
+## Workload Service (MongoDB)
+- MONGODB_URI = mongodb://localhost:27017/gymdb
+
 ### ActiveMQ
 - ACTIVEMQ_BROKER_URL=tcp://localhost:61616
 - ACTIVEMQ_USER=admin
 - ACTIVEMQ_PASSWORD=admin
 
-### 3. Database Initialization
+# 3. Database Initialization
 
 For Core service (Postgres):
 
@@ -59,6 +63,13 @@ For Core service (Postgres):
 CREATE DATABASE "gym";
 CREATE USER gca WITH PASSWORD 'gca';
 GRANT ALL PRIVILEGES ON DATABASE "gym" TO gca;
+```
+
+For Workload Service (MongoDB):
+
+```nosql
+use gymdb;
+db.createCollection("trainer_workloads");
 ```
 
 # 4. Service Startup Order (Important!)
@@ -73,10 +84,20 @@ GRANT ALL PRIVILEGES ON DATABASE "gym" TO gca;
    
    # Windows - use Services panel or PostgreSQL service
    ```
+2. **Start MongoDB**
+   ```bash
+   # Ubuntu/Debian
+   sudo systemctl start mongod
 
-2. **Start ActiveMQ**
+   # macOS
+   brew services start mongodb-community
 
-Navigate to the ActiveMQ directory and start the broker:
+   # Windows - use Services panel or `mongodb` command
+   ```
+
+3. **Start ActiveMQ**
+
+   Navigate to the ActiveMQ directory and start the broker:
    ```bash
    # Windows
    bin\activemq.bat start
@@ -84,17 +105,17 @@ Navigate to the ActiveMQ directory and start the broker:
    # Linux/macOS
    bin/activemq start
    ```
-ActiveMQ will start on default port `61616` (broker) and `8161` (web console)
-Access the web console at `http://localhost:8161/admin` (default credentials: admin/admin)
+   - ActiveMQ will start on default port `61616` (broker) and `8161` (web console)
+   - Access the web console at `http://localhost:8161/admin` (default credentials: admin/admin)
 
-3. **Start Discovery Server** (Eureka Server) - **MUST BE FIRST**:
+4. **Start Discovery Server** (Eureka Server) - **MUST BE FIRST**:
    ```bash
    cd discovery-server
    mvn spring-boot:run
    ```
    Access at: `http://localhost:8761`
 
-4. **Start Core Service**:
+5. **Start Core Service**:
    ```bash
    cd gca-core-service
    mvn spring-boot:run
@@ -103,7 +124,7 @@ Access the web console at `http://localhost:8161/admin` (default credentials: ad
     - Service will register with Eureka
     - Access at: `http://localhost:8080`
 
-5. **Start Workload Service**:
+6. **Start Workload Service**:
    ```bash
    cd workload-service
    mvn spring-boot:run
@@ -112,7 +133,7 @@ Access the web console at `http://localhost:8161/admin` (default credentials: ad
     - Service will register with Eureka
     - Access at: `http://localhost:8081`
 
-6. **Start Gateway Service** - **MUST BE LAST**:
+7. **Start Gateway Service** - **MUST BE LAST**:
    ```bash
    cd gateway-service
    mvn spring-boot:run

@@ -1,7 +1,7 @@
 package com.gca.workloadservice.repository;
 
 import com.gca.workloadservice.model.TrainerWorkload;
-import com.github.database.rider.core.api.dataset.DataSet;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -12,8 +12,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DataSet(value = "dataset/trainers-workload-data.xml", cleanBefore = true, cleanAfter = true, transactional = true)
 class TrainerWorkloadRepositoryTest extends BaseIntegrationTest<TrainerWorkloadRepository> {
+
+    @BeforeEach
+    void setUp() {
+        repository.deleteAll();
+
+        TrainerWorkload trainer1 = buildTrainerWorkload("John", "Cena");
+        TrainerWorkload trainer2 = buildTrainerWorkload("Ronnie", "Coleman");
+
+        repository.saveAll(List.of(trainer1, trainer2));
+    }
+
 
     @Test
     void shouldFindTrainerByUsername() {
@@ -50,16 +60,6 @@ class TrainerWorkloadRepositoryTest extends BaseIntegrationTest<TrainerWorkloadR
     }
 
     @Test
-    void shouldFindTrainerById() {
-        Optional<TrainerWorkload> actual = repository.findById(1L);
-
-        assertThat(actual).isPresent();
-        assertThat(actual.get().getFirstName()).isEqualTo("John");
-        assertThat(actual.get().getLastName()).isEqualTo("Cena");
-    }
-
-    @Test
-    @DataSet(value = "dataset/empty-data.xml", cleanBefore = true, cleanAfter = true, transactional = true)
     void shouldSaveNewTrainer() {
         TrainerWorkload newTrainer1 = buildTrainerWorkload("Dwayne", "Johnson");
         TrainerWorkload newTrainer2 = buildTrainerWorkload("Tom", "Hardy");
@@ -69,8 +69,8 @@ class TrainerWorkloadRepositoryTest extends BaseIntegrationTest<TrainerWorkloadR
 
         assertThat(actualTrainer1.getId()).isNotNull();
         assertThat(actualTrainer2.getId()).isNotNull();
-        assertEquals(1L, actualTrainer1.getId());
-        assertEquals(2L, actualTrainer2.getId());
+        assertEquals(newTrainer1.getUsername(), actualTrainer1.getUsername());
+        assertEquals(newTrainer2.getUsername(), actualTrainer2.getUsername());
     }
 
     private TrainerWorkload buildTrainerWorkload(String firstName, String lastName) {

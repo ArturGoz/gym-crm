@@ -1,12 +1,12 @@
 package com.gca.workloadservice.service.impl;
 
 import com.gca.openapi.model.TrainerWorkloadRequest;
+import com.gca.workloadservice.exception.EntityNotFoundException;
 import com.gca.workloadservice.mapper.TrainerWorkloadMapper;
 import com.gca.workloadservice.model.MonthWorkload;
 import com.gca.workloadservice.model.TrainerWorkload;
 import com.gca.workloadservice.model.YearWorkload;
 import com.gca.workloadservice.repository.TrainerWorkloadRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -143,23 +143,19 @@ class TrainerWorkloadServiceImplTest {
     }
 
     private YearWorkload buildYear(List<MonthWorkload> months) {
-        YearWorkload y = YearWorkload.builder()
+
+        return YearWorkload.builder()
                 .year(2025)
                 .months(months)
                 .build();
-        months.forEach(m -> m.setYearWorkload(y));
-
-        return y;
     }
 
     private TrainerWorkload buildTrainer(List<YearWorkload> years) {
-        TrainerWorkload t = TrainerWorkload.builder()
+
+        return TrainerWorkload.builder()
                 .username("ronnie.coleman")
                 .years(years)
                 .build();
-        years.forEach(y -> y.setTrainerWorkload(t));
-
-        return t;
     }
 
     private TrainerWorkloadRequest buildRonnieColemanWorkload() {
@@ -196,14 +192,10 @@ class TrainerWorkloadServiceImplTest {
                 .year(2025)
                 .months(new ArrayList<>(List.of(existingMonth)))
                 .build();
-        existingMonth.setYearWorkload(existingYear);
 
-        TrainerWorkload existingTrainer = TrainerWorkload.builder()
+        return TrainerWorkload.builder()
                 .username(request.getTrainerUsername())
                 .years(new ArrayList<>(List.of(existingYear)))
                 .build();
-        existingYear.setTrainerWorkload(existingTrainer);
-
-        return existingTrainer;
     }
 }

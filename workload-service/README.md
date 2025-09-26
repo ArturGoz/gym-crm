@@ -12,6 +12,7 @@ To run this application, you should have the following installed:
 - **Maven**
 - **Git**
 - **ActiveMQ**
+- **MongoDB**
 
 ## Setup Instructions
 
@@ -21,3 +22,4 @@ Set Up Global Environment Variables
 - ACTIVEMQ_BROKER_URL = tcp://localhost:61616
 - ACTIVEMQ_USER = admin
 - ACTIVEMQ_PASSWORD = admin
+- MONGODB_URI = mongodb://localhost:27017/gymdb

@@ -1,25 +1,25 @@
 package com.gca.workloadservice.service.impl;
 
 import com.gca.openapi.model.TrainerWorkloadRequest;
+import com.gca.workloadservice.exception.EntityNotFoundException;
 import com.gca.workloadservice.mapper.TrainerWorkloadMapper;
 import com.gca.workloadservice.model.MonthWorkload;
 import com.gca.workloadservice.model.TrainerWorkload;
 import com.gca.workloadservice.model.YearWorkload;
 import com.gca.workloadservice.repository.TrainerWorkloadRepository;
 import com.gca.workloadservice.service.TrainerWorkloadService;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.ArrayList;
+
 @Service
 @Validated
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class TrainerWorkloadServiceImpl implements TrainerWorkloadService {
 
     private final TrainerWorkloadRepository repository;
@@ -87,7 +87,7 @@ public class TrainerWorkloadServiceImpl implements TrainerWorkloadService {
 
     private MonthWorkload createAndAddMonth(YearWorkload yearWorkload, int month) {
         log.warn("Month {} not found in workload. Creating new entry.", month);
-        MonthWorkload newMonth = buildMonthWorkload(yearWorkload, month);
+        MonthWorkload newMonth = buildMonthWorkload(month);
         yearWorkload.getMonths().add(newMonth);
 
         return newMonth;
@@ -101,15 +101,14 @@ public class TrainerWorkloadServiceImpl implements TrainerWorkloadService {
     private YearWorkload buildYearWorkload(TrainerWorkload trainerWorkload, Integer year) {
         return YearWorkload.builder()
                 .year(year)
-                .trainerWorkload(trainerWorkload)
+                .months(new ArrayList<>())
                 .build();
     }
 
-    private MonthWorkload buildMonthWorkload(YearWorkload yearWorkload, Integer month) {
+    private MonthWorkload buildMonthWorkload(Integer month) {
         return MonthWorkload.builder()
                 .month(month)
                 .trainingSummaryDuration(0L)
-                .yearWorkload(yearWorkload)
                 .build();
     }
 }
