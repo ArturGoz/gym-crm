@@ -18,6 +18,7 @@
         <module>api-gateway-service</module>
         <module>workload-service</module>
         <module>gca-core-service</module>
+        <module>gca-automation</module>
     </modules>
 
     <parent>
@@ -46,6 +47,7 @@
         <postgresql.version>42.7.7</postgresql.version>
         <liquibase.version>4.32.0</liquibase.version>
         <lazy.mapper.version>1.0.0</lazy.mapper.version>
+        <cucumber.version>7.18.1</cucumber.version>
     </properties>
 
     <dependencyManagement>
@@ -138,6 +140,24 @@
                 <groupId>com.github.database-rider</groupId>
                 <artifactId>rider-spring</artifactId>
                 <version>${database-rider.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-java</artifactId>
+                <version>${cucumber.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-spring</artifactId>
+                <version>${cucumber.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-junit-platform-engine</artifactId>
+                <version>${cucumber.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
