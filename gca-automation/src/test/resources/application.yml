@@ -1,0 +1,17 @@
+spring:
+  activemq:
+    broker-url: vm://embedded?broker.persistent=false
+    user: ""
+    password: ""
+  jms:
+    listener:
+      auto-startup: false
+
+jwt:
+  secret: gym-crm-application-SECRETKEY123!@#
+
+jms:
+  queue:
+    trainer-workload: trainer.workload.queue
+  listener:
+    concurrency: "3-10"

@@ -12,7 +12,7 @@ import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;
 @IncludeEngines("cucumber")
 @SelectClasspathResource("features")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
-@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.gca.automation.integration.steps")
+@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.gca.automation.integration.steps,com.gca.automation.config")
 public class CucumberTestRunner {
-
 }
+
