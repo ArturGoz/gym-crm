@@ -1,24 +1,26 @@
 package com.gca.automation.integration.steps;
 
-import com.gca.openapi.model.TrainerWorkloadRequest;
-import com.gca.workloadservice.exception.EntityNotFoundException;
-import com.gca.workloadservice.model.MonthWorkload;
-import com.gca.workloadservice.model.TrainerWorkload;
-import com.gca.workloadservice.model.YearWorkload;
-import com.gca.workloadservice.repository.TrainerWorkloadRepository;
-import com.gca.workloadservice.service.TrainerWorkloadService;
+import com.gca.automation.integration.WorkloadSender;
+import com.gca.automation.dto.ActionType;
+import com.gca.automation.dto.TrainerWorkloadDTO;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import jakarta.validation.ConstraintViolationException;
+import org.awaitility.Awaitility;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
-import static com.gca.openapi.model.TrainerWorkloadRequest.ActionTypeEnum.ADD;
-import static com.gca.openapi.model.TrainerWorkloadRequest.ActionTypeEnum.DELETE;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static com.gca.automation.dto.ActionType.ADD;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest
 public class WorkloadServiceSteps {
@@ -29,115 +31,160 @@ public class WorkloadServiceSteps {
     private static final LocalDate DEFAULT_DATE = LocalDate.of(2025, 1, 1);
     private static final Integer DEFAULT_DURATION = 11;
 
-    @Autowired
-    private TrainerWorkloadRepository repository;
+    private static final String COLLECTION_NAME = "trainer_workloads";
 
     @Autowired
-    private TrainerWorkloadService service;
+    private WorkloadSender sender;
 
-    private Exception capturedException;
+    @Autowired
+    private MongoTemplate template;
+
+    @Before
+    public void cleanBeforeScenario() {
+        template.getCollection(COLLECTION_NAME).deleteMany(new Document());
+    }
 
     @Given("a trainer exists with username {string}")
     public void a_trainer_exists(String username) {
-        service.addTrainingWorkload(buildTrainerRequestWithUsername(username));
+        TrainerWorkloadDTO dto = buildTrainerDTO(username, DEFAULT_DURATION, DEFAULT_DATE, ADD);
+        sender.processTrainerWorkloadRequest(dto);
+        awaitTrainer(username);
     }
 
-    @When("I add a workload of {int} minutes for {string} in month {int} of {int}")
+    @When("I add a workload of {int} minutes for {string} in month {int} of {int} year")
     public void i_add_workload(int minutes, String username, int month, int year) {
-        buildTrainerRequest(username, minutes, month, year, ADD);
+        TrainerWorkloadDTO dto = buildTrainerDTO(username, minutes, LocalDate.of(year, month, 15), ADD);
+        sender.processTrainerWorkloadRequest(dto);
+        awaitTrainer(username);
     }
 
-    @When("I remove a workload of {int} minutes for {string} in month {int} of {int}")
+    @When("I remove a workload of {int} minutes for {string} in month {int} of {int} year")
     public void i_remove_workload(int minutes, String username, int month, int year) {
-        buildTrainerRequest(username, minutes, month, year, DELETE);
+        TrainerWorkloadDTO dto = buildTrainerDTO(username, minutes, LocalDate.of(year, month, 15), ActionType.DELETE);
+        sender.processTrainerWorkloadRequest(dto);
+        awaitTrainer(username);
     }
 
-    @When("I try to add workload of {int} minutes for {string} in month {int} of {int}")
-    public void i_try_to_add_invalid_workload(int minutes, String username, int month, int year) {
-        try {
-            buildTrainerRequest(username, minutes, month, year, ADD);
-        } catch (ConstraintViolationException e) {
-            this.capturedException = e;
-        }
+    @When("I add workload")
+    public void i_add_workload(DataTable table) {
+        table.asMaps().forEach(row -> {
+            String username = row.get("trainerUsername");
+            int minutes = Integer.parseInt(row.get("minutes"));
+            int month = Integer.parseInt(row.get("month"));
+            int year = Integer.parseInt(row.get("year"));
+
+            TrainerWorkloadDTO dto = buildTrainerDTO(username, minutes,
+                    LocalDate.of(year, month, 15), ActionType.ADD);
+
+            sender.processTrainerWorkloadRequest(dto);
+            awaitTrainer(username);
+        });
     }
 
-    @When("I request workload summary for {string} in month {int} of {int}")
-    public void i_request_workload_summary(String username, int month, int year) {
-        try {
-            service.getTrainerWorkloadDurationSummary(username, year, month);
-        } catch (EntityNotFoundException e) {
-            this.capturedException = e;
-        }
+    @Then("the trainer summary should contain")
+    public void the_trainer_summary_should_contain(DataTable table) {
+        table.asMaps().forEach(row -> {
+            String username = row.get("trainerUsername");
+            int expectedMinutes = Integer.parseInt(row.get("minutes"));
+            int month = Integer.parseInt(row.get("month"));
+            int year = Integer.parseInt(row.get("year"));
+
+            Document doc = findTrainerDoc(username);
+            assertThat(doc).isNotNull();
+
+            Document yearDoc = findYearDoc(doc, year);
+            Document monthDoc = findMonthDoc(yearDoc, month);
+
+            assertThat(monthDoc.getLong("trainingSummaryDuration"))
+                    .as("Expected %s minutes for trainer %s in %s/%s",
+                            expectedMinutes, username, month, year)
+                    .isEqualTo(expectedMinutes);
+        });
     }
 
-    @Then("the trainer summary for {string} should contain {int} minutes for month {int} of {int}")
+    @Then("the trainer document for {string} should exist in database")
+    public void the_trainer_document_should_exist(String username) {
+        Document doc = findTrainerDoc(username);
+        assertThat(doc)
+                .describedAs("Trainer %s should exist in DB", username)
+                .isNotNull();
+    }
+
+    @Then("the trainer summary for {string} should contain {int} minutes for month {int} of {int} year")
     public void the_trainer_summary_should_contain(String username, int expectedMinutes, int month, int year) {
-        MonthWorkload monthWorkload = findMonthWorkload(username, year, month);
+        Document doc = findTrainerDoc(username);
+        assertThat(doc).isNotNull();
 
-        assertThat(monthWorkload.getTrainingSummaryDuration()).isEqualTo(expectedMinutes);
+        Document yearDoc = findYearDoc(doc, year);
+        Document monthDoc = findMonthDoc(yearDoc, month);
+
+        assertThat(monthDoc.getLong("trainingSummaryDuration"))
+                .describedAs("Expected %s minutes for trainer %s in %s/%s",
+                        expectedMinutes, username, month, year)
+                .isEqualTo(expectedMinutes);
     }
 
-    @Then("a validation exception should be thrown")
-    public void a_validation_exception_should_be_thrown() {
-        assertThat(capturedException)
-                .isInstanceOf(ConstraintViolationException.class);
+    @Then("no workload should exist for {string} in month {int} of {int} year")
+    public void no_workload_should_exist(String username, int month, int year) {
+        Document trainerDoc = findTrainerDoc(username);
+        assertThat(trainerDoc)
+                .as("Trainer document for %s should exist", username)
+                .isNotNull();
+
+        boolean monthExists = Optional.ofNullable(findYearDocOrNull(trainerDoc, year))
+                .map(y -> (List<Document>) y.get("months"))
+                .stream()
+                .flatMap(List::stream)
+                .anyMatch(m -> m.getInteger("month").equals(month));
+
+        assertThat(monthExists)
+                .as("Month %s of %s should not exist for trainer %s", month, year, username)
+                .isFalse();
     }
 
-    @Then("a not found exception should be thrown")
-    public void a_not_found_exception_should_be_thrown() {
-        assertThat(capturedException)
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Trainer not found");
+    private TrainerWorkloadDTO buildTrainerDTO(String username, int minutes, LocalDate date, ActionType actionType) {
+        return TrainerWorkloadDTO.builder()
+                .trainerUsername(username)
+                .trainerFirstName(DEFAULT_FIRST_NAME)
+                .trainerLastName(DEFAULT_LAST_NAME)
+                .isActive(DEFAULT_ACTIVE)
+                .trainingDate(date)
+                .trainingDuration(minutes)
+                .actionType(actionType)
+                .build();
     }
 
-    private void buildTrainerRequest(String username, int minutes, int month, int year,
-                                     TrainerWorkloadRequest.ActionTypeEnum actionType) {
-
-        TrainerWorkloadRequest request = new TrainerWorkloadRequest();
-        request.setTrainerUsername(username);
-        request.setTrainerFirstName(DEFAULT_FIRST_NAME);
-        request.setTrainerLastName(DEFAULT_LAST_NAME);
-        request.setIsActive(DEFAULT_ACTIVE);
-        request.setTrainingDate(LocalDate.of(year, month, 15));
-        request.setTrainingDuration(minutes);
-        request.setActionType(actionType);
-
-        service.addTrainingWorkload(request);
+    private Document findTrainerDoc(String username) {
+        return template.getCollection(COLLECTION_NAME)
+                .find(new Document("username", username))
+                .first();
     }
 
-    private TrainerWorkloadRequest buildTrainerRequestWithUsername(String username) {
-        TrainerWorkloadRequest request = new TrainerWorkloadRequest();
-        request.setTrainerUsername(username);
-        request.setTrainerFirstName(DEFAULT_FIRST_NAME);
-        request.setTrainerLastName(DEFAULT_LAST_NAME);
-        request.setIsActive(DEFAULT_ACTIVE);
-        request.setTrainingDate(DEFAULT_DATE);
-        request.setTrainingDuration(DEFAULT_DURATION);
-        request.setActionType(ADD);
-
-        return request;
+    private Document findYearDoc(Document trainerDoc, int year) {
+        return ((List<Document>) trainerDoc.get("years")).stream()
+                .filter(y -> y.getInteger("year").equals(year))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Year not found: " + year));
     }
 
-    private MonthWorkload findMonthWorkload(String username, int year, int month) {
-        TrainerWorkload trainer = findTrainer(username);
-        YearWorkload targetYearly = findYearWorkload(trainer, year);
+    private Document findYearDocOrNull(Document trainerDoc, int year) {
+        return ((List<Document>) trainerDoc.get("years")).stream()
+                .filter(y -> y.getInteger("year").equals(year))
+                .findFirst()
+                .orElse(null);
+    }
 
-        return targetYearly.getMonths().stream()
-                .filter(m -> m.getMonth() == month)
+    private Document findMonthDoc(Document yearDoc, int month) {
+        return ((List<Document>) yearDoc.get("months")).stream()
+                .filter(m -> m.getInteger("month").equals(month))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Month not found: " + month));
     }
 
-    private TrainerWorkload findTrainer(String username) {
-        return repository.findTrainerWorkloadsByUsername(username)
-                .orElseThrow(() -> new AssertionError(
-                        "Trainer workload not found for username: " + username));
-    }
-
-    private YearWorkload findYearWorkload(TrainerWorkload trainer, int year) {
-        return trainer.getYears().stream()
-                .filter(y -> y.getYear() == year)
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("Year not found: " + year));
+    private void awaitTrainer(String username) {
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(2))
+                .pollInterval(Duration.ofMillis(100))
+                .until(() -> findTrainerDoc(username) != null);
     }
 }
