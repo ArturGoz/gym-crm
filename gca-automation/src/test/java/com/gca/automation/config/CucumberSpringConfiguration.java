@@ -48,12 +48,7 @@ public class CucumberSpringConfiguration {
             .withNetwork(network)
             .withExposedPorts(8081)
             .dependsOn(mongoDBContainer, activemqContainer)
-            .withEnv("EUREKA_CLIENT_ENABLED", "false")
-            .withEnv("MONGODB_URI", "mongodb://mongodb:27017/testdb?replicaSet=docker-rs")
-            .withEnv("ACTIVEMQ_BROKER_URL", "tcp://activemq:61616")
-            .withEnv("ACTIVEMQ_USER", "admin")
-            .withEnv("ACTIVEMQ_PASSWORD", "admin")
-            .withEnv("JWT_SECRET", "gym-crm-application-SECRETKEY123!@")
+            .withEnv("SPRING_PROFILES_ACTIVE", "automation-test")
             .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("workload")));
 
     static {

@@ -4,15 +4,13 @@ spring:
       database: testdb
   activemq:
     broker-url: vm://embedded?broker.persistent=false
-    user: ""
-    password: ""
 
 eureka:
   client:
     enabled: false
 
 jwt:
-  secret: gym-crm-application-SECRETKEY123!@#
+  secret: test-key
 
 jms:
   queue:
