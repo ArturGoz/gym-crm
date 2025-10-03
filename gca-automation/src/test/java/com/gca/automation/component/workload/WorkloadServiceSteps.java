@@ -1,4 +1,4 @@
-package com.gca.automation.integration.steps;
+package com.gca.automation.component.workload;
 
 import com.gca.automation.dto.ActionType;
 import com.gca.automation.dto.TrainerWorkloadDTO;

@@ -955,7 +955,7 @@ components:
           description: Duration of training in minutes
           minimum: 1
           example: 60
-    ErrorResponse:
+    ErrorResponse :
       type: object
       required:
         - errorCode
