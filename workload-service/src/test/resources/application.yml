@@ -2,9 +2,15 @@ spring:
   data:
     mongodb:
       database: testdb
+  activemq:
+    broker-url: vm://embedded?broker.persistent=false
+
+eureka:
+  client:
+    enabled: false
 
 jwt:
-  secret: gym-crm-application-SECRETKEY123!@#
+  secret: test-key
 
 jms:
   queue:
