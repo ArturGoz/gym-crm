@@ -48,6 +48,7 @@
         <liquibase.version>4.32.0</liquibase.version>
         <lazy.mapper.version>1.0.0</lazy.mapper.version>
         <cucumber.version>7.18.1</cucumber.version>
+        <test.containers.version>1.21.3</test.containers.version>
     </properties>
 
     <dependencyManagement>
@@ -158,6 +159,30 @@
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-junit-platform-engine</artifactId>
                 <version>${cucumber.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${test.containers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${test.containers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${test.containers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mongodb</artifactId>
+                <version>${test.containers.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
