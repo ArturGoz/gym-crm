@@ -51,6 +51,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/health/**").permitAll()
                         .requestMatchers(BASE_PATH + "/auth/login").permitAll()
                         .requestMatchers(BASE_PATH + "/auth/refresh").permitAll()
                         .requestMatchers(BASE_PATH + "/trainees/register").permitAll()

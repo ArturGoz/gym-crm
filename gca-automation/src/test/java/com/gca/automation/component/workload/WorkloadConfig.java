@@ -58,7 +58,6 @@ public class WorkloadConfig {
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", () -> mongoDBContainer.getReplicaSetUrl("testdb"));
-
         registry.add("spring.activemq.broker-url", () ->
                 format("tcp://%s:%d",
                         activemqContainer.getHost(),

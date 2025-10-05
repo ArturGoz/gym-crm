@@ -75,6 +75,8 @@ public class GcaCoreConfig {
 
         registry.add("jms.queue.trainer-workload", () -> "trainer.workload.queue");
         registry.add("jms.request-timeout-ms", () -> 5000);
+
+        registry.add("test.port", GcaCoreConfig::getGcaCoreMappedPort);
     }
 
     public static int getGcaCoreMappedPort() {

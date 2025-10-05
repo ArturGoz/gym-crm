@@ -10,7 +10,8 @@ public class RouterValidator {
 
     private static final List<String> OPEN_ENDPOINTS = List.of(
             "/auth/",
-            "/register"
+            "/register",
+            "/actuator/health/"
     );
 
     public boolean isSecured(ServerHttpRequest request) {

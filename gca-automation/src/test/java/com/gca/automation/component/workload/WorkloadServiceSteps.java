@@ -11,8 +11,8 @@ import io.cucumber.java.en.When;
 import org.awaitility.Awaitility;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -24,7 +24,7 @@ import static com.gca.automation.dto.ActionType.ADD;
 import static com.gca.automation.dto.ActionType.DELETE;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@SpringBootTest
+@ContextConfiguration(classes = WorkloadServiceSteps.class)
 public class WorkloadServiceSteps {
     private static final String DEFAULT_FIRST_NAME = "Ronnie";
     private static final String DEFAULT_LAST_NAME = "Coleman";
@@ -87,14 +87,13 @@ public class WorkloadServiceSteps {
     @Then("no workload should exist for {string} in month {int} of {int} year")
     public void no_workload_should_exist(String username, int month, int year) {
         Document trainerDoc = findTrainerDoc(username);
-        assertThat(trainerDoc).isNotNull();
-
         boolean monthExists = Optional.ofNullable(findYearDocOrNull(trainerDoc, year))
                 .map(y -> (List<Document>) y.get("months"))
                 .stream()
                 .flatMap(List::stream)
                 .anyMatch(m -> m.getInteger("month").equals(month));
 
+        assertThat(trainerDoc).isNotNull();
         assertThat(monthExists)
                 .as("Month %s of %s should not exist for trainer %s", month, year, username)
                 .isFalse();
@@ -188,11 +187,10 @@ public class WorkloadServiceSteps {
 
     private void assertTrainingSummaryDuration(WorkloadRow row) {
         Document trainerDoc = findTrainerDoc(row.username());
-        assertThat(trainerDoc).isNotNull();
-
         Document yearDoc = findYearDoc(trainerDoc, row.year());
         Document monthDoc = findMonthDoc(yearDoc, row.month());
 
+        assertThat(trainerDoc).isNotNull();
         assertThat(monthDoc.getLong("trainingSummaryDuration"))
                 .as("Expected %s minutes for trainer %s in %s/%s",
                         row.minutes(), row.username(), row.month(), row.year())
