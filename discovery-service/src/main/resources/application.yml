@@ -12,6 +12,15 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
 logging:
   level:
     com.netflix.eureka: OFF

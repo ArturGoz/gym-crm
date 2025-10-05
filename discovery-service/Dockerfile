@@ -3,15 +3,15 @@ WORKDIR /app
 
 COPY . .
 
-RUN mvn clean package -pl workload-service -am -DskipTests=true
+RUN mvn clean package -pl discovery-service -am -DskipTests=true
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 RUN apk add --no-cache curl
 
-COPY --from=build /app/workload-service/target/*.jar app.jar
+COPY --from=build /app/discovery-service/target/*.jar app.jar
 
-EXPOSE 8081
+EXPOSE 8761
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

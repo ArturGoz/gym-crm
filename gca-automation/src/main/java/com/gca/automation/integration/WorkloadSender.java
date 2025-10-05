@@ -21,7 +21,7 @@ public class WorkloadSender {
     private final ObjectMapper objectMapper;
     private final WorkloadMessageFactory messageFactory;
 
-    @Value("${jms.queue.trainer-workload}")
+    @Value("${jms.queue.trainer-workload:noop}")
     private String queueName;
 
     public void processTrainerWorkloadRequest(TrainerWorkloadDTO request) {

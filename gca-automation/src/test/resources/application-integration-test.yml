@@ -1,0 +1,8 @@
+spring:
+  activemq:
+    broker-url: vm://embedded?broker.persistent=false
+  data:
+    mongodb:
+      uri: ''        # Empty URI disables MongoDB
+      host: ''
+      port: 0
