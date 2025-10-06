@@ -48,6 +48,7 @@ public class IntegrationConfig {
                             .forPort(8765)
                             .forStatusCode(200)
                             .withStartupTimeout(Duration.ofMinutes(3)));
+
     static {
         composeContainer.start();
         waitForAllServicesSetUp();

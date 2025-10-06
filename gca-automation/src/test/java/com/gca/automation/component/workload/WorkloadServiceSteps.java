@@ -11,6 +11,7 @@ import io.cucumber.java.en.When;
 import org.awaitility.Awaitility;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -24,6 +25,7 @@ import static com.gca.automation.dto.ActionType.ADD;
 import static com.gca.automation.dto.ActionType.DELETE;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+@SpringBootTest
 @ContextConfiguration(classes = WorkloadServiceSteps.class)
 public class WorkloadServiceSteps {
     private static final String DEFAULT_FIRST_NAME = "Ronnie";

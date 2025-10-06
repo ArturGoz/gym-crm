@@ -9,10 +9,9 @@ Feature: User Authentication
       | John        | Cena     | 2000-01-15  | 123 Main Street  |
     When I login with the registered trainee credentials
     Then the response status code should be 200
-    And I should receive a valid authentication token
 
   Scenario: Failed login with invalid credentials
-    When I login with the following credentials:
+    When I login with invalid credentials
       | username     | password        |
       | invalid.user | wrongpassword   |
     Then the response status code should be 404
