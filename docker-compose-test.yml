@@ -88,6 +88,12 @@ services:
       EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: 5
     networks:
       - gca-test-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   gca-core-service:
     image: gca-core-service
@@ -113,11 +119,21 @@ services:
       EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: 5
     networks:
       - gca-test-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   api-gateway-service:
     image: api-gateway-service
     depends_on:
       discovery-service:
+        condition: service_healthy
+      workload-service:
+        condition: service_healthy
+      gca-core-service:
         condition: service_healthy
     ports:
       - "8765:8765"
