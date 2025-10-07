@@ -5,8 +5,8 @@ Feature: Trainee Profile Retrieval
 
   Scenario: Successfully retrieve trainee profile with valid authentication
     Given I register a new trainee with the following details:
-      | firstName | lastName | dateOfBirth | address          |
-      | Alex      | Pereira      | 1990-01-01  | 123 Main Street  |
+      | firstName | lastName | dateOfBirth | address         |
+      | Alex      | Pereira  | 1990-01-01  | 123 Main Street |
     When I login with the registered trainee credentials
     Then the response status code should be 200
     When I retrieve the trainee profile for the registered username
