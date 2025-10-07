@@ -12,8 +12,8 @@ Feature: Integration of Trainee, Trainer and Workload microservices
       | traineeUsername | trainerUsername | trainingName | trainingDate | duration |
       | john.cena       | yuriy.boika     | Boxing       | 2027-07-15   | 60       |
     Then the response status code should be 200
-    When I get the workload for trainer "yuriy.donets" for year 2027 and month 7
-    Then the trainer workload should include training with duration 60 for "yuriy.donets"
+    When I get the workload for trainer "yuriy.boika" for year 2027 and month 7
+    Then the trainer workload should include training with duration 60 for "yuriy.boika"
 
   Scenario: Attempt to create training with non-existent trainer
     Given I register a new trainee with the following details:
