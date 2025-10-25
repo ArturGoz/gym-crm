@@ -1,7 +1,7 @@
 # Gym crm
 
 Gym CRM System is a microservices-based application for managing gyms, trainers, trainees, and workouts.  
-The system is built with **Java 17**, **Spring Boot**, **PostgreSQL**, **ActiveMQ**, and **Spring Cloud**, **MongoDB**.
+The system is built with **Java 17**, **Spring Boot**, **PostgreSQL**, **ActiveMQ**, **Spring Cloud**, **MongoDB** and **Docker**.
 
 ---
 
@@ -15,6 +15,46 @@ The system is built with **Java 17**, **Spring Boot**, **PostgreSQL**, **ActiveM
 | `workload-service`  | 8081 | Trainer workload management via JMS and REST | MongoDB    |
 
 ---
+
+# Running with Docker Compose (Recommended)
+
+## Prerequisites (Docker)
+
+* **Git**
+* **Docker** та **Docker Compose**
+* **Java Development Kit (JDK) 17**
+* **Maven**
+
+### 1. Cloning a repository
+
+```bash
+git clone https://github.com/ArturGoz/gym-crm
+```
+
+### 2. Building Docker images
+
+```bash
+cd gym-crm
+
+docker build -t discovery-service:latest -f discovery-service/Dockerfile .
+docker build -t workload-service:latest -f workload-service/Dockerfile .
+docker build -t gca-core-service:latest -f gca-core-service/Dockerfile .
+docker build -t api-gateway-service:latest -f api-gateway-service/Dockerfile .
+```
+
+### 3. Start
+
+```bash
+docker compose up -d
+```
+
+### 4. Stop
+
+```bash
+docker compose down
+```
+
+# Manual setup (Without Docker)
 
 ## Prerequisites
 
