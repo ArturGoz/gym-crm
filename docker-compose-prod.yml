@@ -8,15 +8,15 @@ services:
   postgres:
     image: postgres:14.19-alpine3.21
     environment:
-      POSTGRES_DB: gcadb
-      POSTGRES_USER: gca
-      POSTGRES_PASSWORD: gca
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     networks:
       - gca-network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d gcadb -U gca" ]
+      test: [ "CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -26,7 +26,7 @@ services:
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_DATABASE=gcadb
+      - MONGO_INITDB_DATABASE=${MONGO_DB}
     networks:
       - gca-network
     healthcheck:
@@ -41,8 +41,8 @@ services:
       - "61616:61616"
       - "8161:8161"
     environment:
-      ACTIVEMQ_ADMIN_LOGIN: activemq-gca
-      ACTIVEMQ_ADMIN_PASSWORD: activemq-gca
+      ACTIVEMQ_ADMIN_LOGIN: ${ACTIVEMQ_ADMIN_USER}
+      ACTIVEMQ_ADMIN_PASSWORD: ${ACTIVEMQ_ADMIN_PASSWORD}
     networks:
       - gca-network
     healthcheck:
@@ -79,11 +79,11 @@ services:
     ports:
       - "8081:8081"
     environment:
-      MONGODB_URI: mongodb://mongo:27017/gcadb
+      MONGODB_URI: mongodb://mongo:27017/${MONGO_DB}
       ACTIVEMQ_BROKER_URL: tcp://activemq:61616
-      ACTIVEMQ_USER: activemq-gca
-      ACTIVEMQ_PASSWORD: activemq-gca
-      JWT_SECRET: "gca1-secret-key-for-application-start-minimum-32-characters"
+      ACTIVEMQ_USER: ${ACTIVEMQ_ADMIN_USER}
+      ACTIVEMQ_PASSWORD: ${ACTIVEMQ_ADMIN_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
       EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: 5
     networks:
@@ -107,14 +107,14 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: dev
-      DB_URL: jdbc:postgresql://postgres:5432/gcadb
-      DB_USERNAME: gca
-      DB_PASSWORD: gca
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
       ACTIVEMQ_BROKER_URL: tcp://activemq:61616
-      ACTIVEMQ_USER: activemq-gca
-      ACTIVEMQ_PASSWORD: activemq-gca
-      JWT_SECRET: "gca1-secret-key-for-application-start-minimum-32-characters"
+      ACTIVEMQ_USER: ${ACTIVEMQ_ADMIN_USER}
+      ACTIVEMQ_PASSWORD: ${ACTIVEMQ_ADMIN_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
       EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: 5
     networks:
@@ -138,7 +138,7 @@ services:
     ports:
       - "8765:8765"
     environment:
-      JWT_SECRET: "gca1-secret-key-for-application-start-minimum-32-characters"
+      JWT_SECRET: ${JWT_SECRET}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
       EUREKA_CLIENT_INSTANCE_INFO_REPLICATION_INTERVAL_SECONDS: 5
       EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: 5
