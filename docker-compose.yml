@@ -1,0 +1,152 @@
+version: "3.9"
+
+networks:
+  gca-network:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:14.19-alpine3.21
+    environment:
+      POSTGRES_DB: gcadb
+      POSTGRES_USER: gca
+      POSTGRES_PASSWORD: gca
+    ports:
+      - "5432:5432"
+    networks:
+      - gca-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d gcadb -U gca" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mongo:
+    image: mongo:7.0.5
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=gcadb
+    networks:
+      - gca-network
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  activemq:
+    image: apache/activemq-classic:latest
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    environment:
+      ACTIVEMQ_ADMIN_LOGIN: activemq-gca
+      ACTIVEMQ_ADMIN_PASSWORD: activemq-gca
+    networks:
+      - gca-network
+    healthcheck:
+      test: [ "CMD-SHELL", "timeout 5 bash -c '</dev/tcp/localhost/61616' || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  discovery-service:
+    image: discovery-service
+    ports:
+      - "8761:8761"
+    environment:
+      EUREKA_CLIENT_REGISTER_WITH_EUREKA: "false"
+      EUREKA_CLIENT_FETCH_REGISTRY: "false"
+    networks:
+      - gca-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  workload-service:
+    image: workload-service
+    depends_on:
+      mongo:
+        condition: service_healthy
+      activemq:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/gcadb
+      ACTIVEMQ_BROKER_URL: tcp://activemq:61616
+      ACTIVEMQ_USER: activemq-gca
+      ACTIVEMQ_PASSWORD: activemq-gca
+      JWT_SECRET: "gca1-secret-key-for-application-start-minimum-32-characters"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
+      EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: 5
+    networks:
+      - gca-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  gca-core-service:
+    image: gca-core-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      activemq:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:postgresql://postgres:5432/gcadb
+      DB_USERNAME: gca
+      DB_PASSWORD: gca
+      ACTIVEMQ_BROKER_URL: tcp://activemq:61616
+      ACTIVEMQ_USER: activemq-gca
+      ACTIVEMQ_PASSWORD: activemq-gca
+      JWT_SECRET: "gca1-secret-key-for-application-start-minimum-32-characters"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
+      EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: 5
+    networks:
+      - gca-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  api-gateway-service:
+    image: api-gateway-service
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      gca-core-service:
+        condition: service_healthy
+      workload-service:
+        condition: service_healthy
+    ports:
+      - "8765:8765"
+    environment:
+      JWT_SECRET: "gca1-secret-key-for-application-start-minimum-32-characters"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka
+      EUREKA_CLIENT_INSTANCE_INFO_REPLICATION_INTERVAL_SECONDS: 5
+      EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: 5
+    networks:
+      - gca-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8765/actuator/health || exit 1" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s

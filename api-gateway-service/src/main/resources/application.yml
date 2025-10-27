@@ -17,6 +17,10 @@ spring:
             connect-timeout: 3000
 
 resilience4j:
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 5s
   circuitbreaker:
     configs:
       default:
